@@ -1,0 +1,678 @@
+<title>Sumiço</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Encontramos seu CPF, telefone, endereço e fotos em sites de consulta e vazamentos, e pedimos a exclusão por você. Todo mês. A partir de R$24,90.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: página escura e centrada no ritmo da página de segurança de referência — hero com escudo, faixa de fontes, grade de cards, faixa cinza, FAQ, caixa de contato, rodapé em colunas */
+:root {
+  color-scheme: dark;
+  --bg: #08090d;
+  --band: #111318;
+  --surface: #0d0f15;
+  --raised: #1a1d26;
+  --line: rgba(238, 240, 245, .10);
+  --line-strong: rgba(238, 240, 245, .18);
+  --fg: #eef0f5;
+  --fg-2: #a3a9b8;
+  --fg-3: #7a8296;
+  --accent: #3d8bff;
+  --accent-deep: #1f63e0;
+  --accent-ink: #8fbaff;
+  --ok: #4cc38a;
+  --warn: #e0a64b;
+  --btn: #f2f3f6;
+  --btn-ink: #0b0d14;
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+*, *::before, *::after { box-sizing: border-box }
+html { scroll-behavior: smooth; scroll-padding-top: 72px }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto } }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--sans); font-size: 15px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg) }
+a { color: inherit; text-decoration: none }
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -.02em; text-wrap: balance }
+p { margin: 0 }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.narrow { max-width: 800px }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px }
+
+/* Botões */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 20px; border-radius: 8px; border: 1px solid transparent;
+  font: 500 14px/1 var(--sans); cursor: pointer;
+  transition: background-color .15s var(--ease), border-color .15s var(--ease), transform .1s var(--ease);
+}
+.btn:active { transform: scale(.98) }
+.btn-primary { background: var(--btn); color: var(--btn-ink) }
+.btn-primary:hover { background: #ffffff }
+.btn-ghost { background: transparent; color: var(--fg); border-color: var(--line-strong) }
+.btn-ghost:hover { background: var(--raised) }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 6px }
+
+/* Navegação */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(8, 9, 13, .82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line) }
+.nav .wrap { display: flex; align-items: center; height: 56px; gap: 24px }
+.logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 18px; letter-spacing: -.02em }
+.logo img { flex: none; display: block }
+.nav-links { display: flex; gap: 24px; margin-left: auto; font-size: 13px; color: var(--fg-2) }
+.nav-links a { transition: color .15s var(--ease) }
+.nav-links a:hover { color: var(--fg) }
+.nav .btn { margin-left: 8px }
+@media (max-width: 720px) { .nav-links { display: none } .nav .btn { margin-left: auto } }
+
+/* Hero */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+.hero { position: relative; overflow: hidden; padding-block: 96px 104px; border-bottom: 1px solid var(--line) }
+.hero-bg { position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 70% at 78% 45%, rgba(31, 99, 224, .16), transparent 70%),
+    linear-gradient(90deg, transparent calc(50% - .5px), rgba(238,240,245,.05) 50%, transparent calc(50% + .5px)),
+    linear-gradient(90deg, transparent calc(20% - .5px), rgba(238,240,245,.035) 20%, transparent calc(20% + .5px)),
+    linear-gradient(90deg, transparent calc(80% - .5px), rgba(238,240,245,.035) 80%, transparent calc(80% + .5px)) }
+.hero-grid { position: relative; max-width: 1200px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center }
+@media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 56px } .hero { padding-block: 56px 72px } }
+.hero h1 { font-size: clamp(40px, 5.6vw, 84px); line-height: 1.02; letter-spacing: -.045em; font-weight: 600 }
+.hero h1 span { color: #8e9099; white-space: nowrap }
+.hero .lede { max-width: 560px; margin-top: 28px; color: var(--fg-2); font-size: clamp(16px, 1.5vw, 19px); line-height: 1.6 }
+.hero-form { margin-top: 36px; max-width: 460px }
+.pill-field { display: flex; align-items: center; gap: 8px; height: 56px; padding: 5px 5px 5px 20px; border-radius: 28px; border: 1px solid var(--line-strong); background: #0e0f13; transition: border-color .15s var(--ease) }
+.pill-field:focus-within { border-color: rgba(61, 139, 255, .6) }
+.pill-field input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: none; color: var(--fg); font: 400 16px var(--sans) }
+.pill-field input::placeholder { color: var(--fg-3) }
+.pill-field button { flex: none; height: 46px; padding: 0 22px; border: 0; border-radius: 23px; background: var(--accent); color: #fff; font: 500 15px var(--sans); cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.2); transition: background-color .15s var(--ease), transform .1s var(--ease) }
+.pill-field button:hover { background: #2f7cf0 }
+.pill-field button:active { transform: scale(.98) }
+.hero-form .form-note { margin-top: 12px; padding-left: 20px }
+@media (prefers-reduced-motion: no-preference) {
+  .hero .rise, .hero .scan { animation: rise .6s var(--ease) both }
+  .hero .lede { animation-delay: .06s } .hero .hero-form { animation-delay: .12s } .hero .scan { animation-delay: .16s }
+  @keyframes rise { from { opacity: .001; transform: translateY(8px) } }
+}
+
+/* Aba de exposição por IP */
+.exposure { max-width: 520px; margin-bottom: 32px; border: 1px solid rgba(224, 166, 75, .28); background: rgba(224, 166, 75, .06); border-radius: 12px; padding: 12px 16px 12px }
+.exp-head { display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--warn) }
+.exp-head i { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none }
+.exp-body { margin-top: 6px; font-size: 15px; line-height: 1.5; color: var(--fg) }
+.exp-body b { font-weight: 500; color: var(--fg) }
+.exp-body .mono { font-size: 13px; color: var(--fg-2) }
+.exp-foot { margin-top: 4px; font-size: 12px; color: var(--fg-3) }
+.exposure.ready .exp-body { animation: expin .4s var(--ease) both }
+@keyframes expin { from { opacity: .001 } }
+@media (prefers-reduced-motion: reduce) { .exposure.ready .exp-body { animation: none } }
+@media (max-width: 960px) { .exposure { margin-bottom: 24px } }
+
+/* Card da varredura */
+.scan { background: #0c0d11; border: 1px solid var(--line-strong); border-radius: 24px; padding: 24px; box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 40px 80px rgba(0, 0, 0, .55) }
+.scan-head { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; color: var(--fg-2) }
+.scan-head b { color: var(--fg); font-weight: 500 }
+.meter { height: 6px; background: rgba(238,240,245,.06); border-radius: 3px; overflow: hidden; margin-top: 16px }
+.meter i { display: block; height: 100%; width: 66%; background: var(--ok); border-radius: 3px }
+.scan ul { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 8px }
+.scan li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 8px 8px 8px 16px; border: 1px solid var(--line); border-radius: 12px; font-size: 15px; background: rgba(255,255,255,.012) }
+.scan li > span:first-child { min-width: 0 }
+.status { font: 400 12px/1 var(--mono); padding: 7px 10px; border-radius: 8px; white-space: nowrap }
+.st-ok { color: var(--ok); background: rgba(76, 195, 138, .14) }
+.st-sent { color: var(--warn); background: rgba(224, 166, 75, .15) }
+.st-bad { color: #ef6b6f; background: rgba(229, 72, 77, .16) }
+.scan-foot { margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,.035); font-size: 12px; color: var(--fg-2); display: flex; align-items: center; gap: 10px; overflow-wrap: anywhere }
+.scan-foot i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex: none }
+@media (max-width: 460px) { .scan { padding: 16px; border-radius: 20px } .scan li { font-size: 14px } }
+
+/* Faixa de fontes (no lugar dos logos) */
+.sources { padding-block: 64px 64px; text-align: center }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--fg-2) }
+.source-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 32px; margin-top: 24px; color: var(--fg); font-size: 17px; font-weight: 500; letter-spacing: -.01em }
+.source-row span { display: inline-flex; align-items: center; gap: 8px; opacity: .88 }
+.source-row svg { color: var(--fg-2) }
+
+/* Ícones */
+.ico { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none }
+.badge { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none }
+.badge-solid { background: var(--accent); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25) }
+.badge-line { border: 1px solid var(--line-strong); color: var(--accent-ink) }
+
+/* Números */
+.numbers { padding-block: 0 96px }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--line) }
+.stat { display: grid; gap: 8px; padding: 32px 24px; border-left: 1px solid var(--line) }
+.stat:first-child { border-left: 0 }
+.stat b { font: 500 40px/1 var(--mono); letter-spacing: -.03em; white-space: nowrap }
+.stat span { color: var(--fg-2) }
+.fonte { margin-top: 12px; font-size: 12px; color: var(--fg-3) }
+@media (max-width: 720px) { .stats { grid-template-columns: 1fr } .stat { border-left: 0; border-top: 1px solid var(--line); padding: 24px 4px } .stat:first-child { border-top: 0 } }
+
+/* Seções */
+section.block { padding-block: 104px }
+.band { background: var(--band); border-block: 1px solid var(--line) }
+.sec-head { text-align: center; max-width: 640px; margin: 0 auto 48px }
+.sec-head h2 { font-size: clamp(28px, 4.4vw, 40px); line-height: 1.12 }
+.sec-head p { margin-top: 16px; color: var(--fg-2); font-size: 16px }
+.sec-head .btn { margin-top: 28px }
+
+/* Manchetes como prints */
+.clips { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px 32px; align-items: center; padding-block: 8px }
+.clip-side { display: grid; gap: 32px }
+.clip { margin: 0; display: grid; gap: 12px }
+.paper { background: #fff; border-radius: 10px; padding: 6px; box-shadow: 0 1px 0 rgba(255,255,255,.06), 0 24px 48px rgba(0, 0, 0, .5), 0 4px 12px rgba(0, 0, 0, .35); overflow: hidden }
+.paper img { display: block; width: 100%; height: auto; border-radius: 6px }
+.clip figcaption { font-size: 12px; color: var(--fg-3); padding-left: 4px }
+.clip-main .paper { transform: rotate(-1.4deg) }
+.clip-a .paper { transform: rotate(1.2deg) }
+.clip-b .paper { transform: rotate(-.6deg) }
+@media (max-width: 860px) {
+  .clips { grid-template-columns: 1fr; gap: 32px }
+  .clip .paper { transform: none }
+}
+
+/* Como funciona */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px }
+@media (max-width: 960px) { .steps { grid-template-columns: repeat(2, 1fr) } }
+@media (max-width: 560px) { .steps { grid-template-columns: 1fr } }
+.step { background: var(--bg); border: 1px solid var(--line-strong); border-radius: 12px; padding: 28px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px }
+.step .orb { width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center; background: var(--surface); color: var(--fg); margin-bottom: 8px; position: relative }
+.step .orb .ico { width: 24px; height: 24px }
+.step .num { position: absolute; top: -4px; right: -8px; font: 500 11px/1 var(--mono); color: var(--fg-3); background: var(--bg); padding: 2px 4px }
+.step h3 { font-size: 18px }
+.step p { color: var(--fg-2); font-size: 14px }
+
+/* Segurança */
+.sec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 24px }
+@media (max-width: 860px) { .sec-grid { grid-template-columns: repeat(2, 1fr) } }
+@media (max-width: 560px) { .sec-grid { grid-template-columns: 1fr } }
+.feat { padding: 24px; border-radius: 12px; border: 1px solid transparent }
+.feat.boxed { border-color: var(--line-strong); background: var(--surface) }
+.feat .t { display: flex; align-items: center; gap: 12px; margin-bottom: 12px }
+.feat h3 { font-size: 16px; font-weight: 500; letter-spacing: -.01em }
+.feat p { color: var(--fg-2); font-size: 14px }
+.code { margin: 0 auto 56px; max-width: 560px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); overflow: hidden }
+.code-bar { display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--line); font: 400 12px/1.4 var(--mono); color: var(--fg-3) }
+.code pre { margin: 0; padding: 16px; overflow-x: auto; font: 400 13px/1.8 var(--mono); color: var(--fg-2) }
+.code .k { color: var(--fg) }
+.code .s { color: var(--accent-ink) }
+.code .c { color: var(--fg-3) }
+
+/* Preços */
+.plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: stretch }
+@media (max-width: 1080px) { .plans { grid-template-columns: repeat(2, 1fr) } }
+@media (max-width: 620px) { .plans { grid-template-columns: 1fr } }
+.plan { border: 1px solid var(--line-strong); border-radius: 14px; padding: 28px; background: var(--surface); display: flex; flex-direction: column; gap: 20px; position: relative }
+.plan.featured { border-color: rgba(61, 139, 255, .55); background: linear-gradient(180deg, #10141e, #0d0f15) }
+.plan .tag { position: absolute; top: -11px; left: 28px; font: 500 11px/1 var(--mono); padding: 5px 8px; border-radius: 6px; background: var(--accent-deep); color: #fff }
+.plan h3 { font-size: 15px; font-weight: 500; color: var(--fg-2); letter-spacing: 0 }
+.price { display: flex; align-items: baseline; gap: 6px }
+.price b { font: 500 36px/1 var(--mono); letter-spacing: -.03em }
+.price span { color: var(--fg-3); font-size: 14px }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 14px; color: var(--fg-2) }
+.plan li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; align-items: start }
+.plan li svg { width: 16px; height: 16px; margin-top: 3px; color: var(--accent-ink) }
+.plan .btn { margin-top: auto; width: 100% }
+.plan.ent { background: #151821; border-color: var(--line-strong) }
+.plan.ent .tag { background: var(--raised); color: var(--fg); border: 1px solid var(--line-strong) }
+.plan.ent .lead { color: var(--fg-2); font-size: 14px; line-height: 1.55 }
+.price b.consult { font-size: 28px; line-height: 36px }
+.plan.ent .quote { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 13px; color: var(--fg-2) }
+.plan.ent .quote svg { color: var(--fg-2); margin-top: 2px }
+.plan.ent .quote b { display: block; color: var(--fg); font-weight: 500; font-size: 14px }
+.founder { margin-top: 32px; text-align: center; color: var(--fg-2); font-size: 14px }
+.founder b { color: var(--fg); font-weight: 500 }
+
+/* FAQ */
+.faq { border-top: 1px solid var(--line) }
+.faq details { border-bottom: 1px solid var(--line) }
+.faq summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 4px; font-size: 18px; font-weight: 500; letter-spacing: -.01em }
+.faq summary::-webkit-details-marker { display: none }
+.faq summary svg { color: var(--fg-2); transition: transform .2s var(--ease) }
+.faq details[open] summary svg { transform: rotate(180deg) }
+.faq summary:hover svg { color: var(--fg) }
+.faq .ans { padding: 0 4px 24px; color: var(--fg-2); font-size: 15px; max-width: 70ch }
+
+/* Lista de espera */
+.cta { margin-top: 96px; border: 1px solid var(--line-strong); border-radius: 12px; padding: 28px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 32px; align-items: center; background: var(--surface) }
+@media (max-width: 760px) { .cta { grid-template-columns: 1fr; gap: 20px } }
+.cta h2 { font-size: 22px; letter-spacing: -.02em }
+.cta p { margin-top: 8px; color: var(--fg-2); font-size: 14px }
+.form-row { display: flex; gap: 8px }
+@media (max-width: 460px) { .form-row { flex-direction: column } .form-row .btn { width: 100% } }
+.field { flex: 1; min-width: 0; height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg); padding: 0 14px; font: 400 15px var(--sans); transition: border-color .15s var(--ease) }
+.field::placeholder { color: var(--fg-3) }
+.field:focus { outline: none; border-color: var(--accent) }
+.form-note { margin-top: 10px; font-size: 12px; color: var(--fg-3); min-height: 18px }
+.form-note.ok { color: var(--ok) }
+.form-note.err { color: #e5484d }
+
+/* Rodapé */
+footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(--line); padding-block: 56px 32px }
+.foot-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px }
+@media (max-width: 720px) { .foot-cols { grid-template-columns: repeat(2, 1fr) } }
+.foot-cols h4 { margin: 0 0 16px; font-size: 13px; font-weight: 500 }
+.foot-cols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 13px; color: var(--fg-3) }
+.foot-cols a:hover { color: var(--fg) }
+.foot-bottom { margin-top: 56px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; font-size: 12px; color: var(--fg-3) }
+.foot-bottom .logo { font-size: 16px; color: var(--fg); width: 100% }
+.pill { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 10px; color: var(--fg-2) }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent) }
+.pill em { font-style: normal; color: var(--accent-ink) }
+@media (max-width: 560px) { .pill { margin-left: 0 } }
+
+/* Entrada única */
+@media (prefers-reduced-motion: no-preference) {
+  .hero .rise { animation: rise .6s var(--ease) both }
+  .hero .rise:nth-child(2) { animation-delay: .06s }
+  .hero .rise:nth-child(3) { animation-delay: .12s }
+  @keyframes rise { from { opacity: .001; transform: translateY(8px) } }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-sign" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 17c1.5-2 2.5-2 3 0s1.5 2 3 0 2-1 2.5 0"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4z"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-min" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></symbol>
+    <symbol id="i-log" viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></symbol>
+    <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2"/><path d="M14 10h4M14 14h3"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="wrap" style="max-width:1200px">
+    <a class="logo" href="#topo" aria-label="Sumiço, início">
+      <img src="assets/symbol-96.png" alt="" width="20" height="29">
+      Sumiço
+    </a>
+    <nav class="nav-links" aria-label="Seções">
+      <a href="#como">Como funciona</a>
+      <a href="#seguranca">Segurança</a>
+      <a href="#precos">Preços</a>
+      <a href="#faq">Dúvidas</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="#lista">Entrar na lista</a>
+  </div>
+</header>
+
+<main id="topo">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="exposure rise" id="exposure" aria-live="polite">
+          <div class="exp-head mono"><i></i>O que este site já sabe sobre você</div>
+          <p class="exp-body" id="exp-body">Verificando o que o seu navegador entrega a qualquer site…</p>
+          <p class="exp-foot" id="exp-foot">Calculado agora pelo seu IP. Não guardamos essa informação.</p>
+        </div>
+        <h1 class="rise">Seus dados,<br><span>fora da internet.</span></h1>
+        <p class="lede rise">O Sumiço encontra seu nome, CPF, telefone e fotos em sites de consulta, cadastros e vazamentos — e envia os pedidos de exclusão por você, com base na LGPD. Todo mês.</p>
+        <form class="waitlist hero-form rise" novalidate>
+          <label for="email-hero" class="sr">Seu e-mail</label>
+          <div class="pill-field">
+            <input id="email-hero" name="email" type="email" autocomplete="email" placeholder="seu@email.com" required>
+            <button type="submit">Quero sumir</button>
+          </div>
+          <p class="form-note" aria-live="polite">Só pedimos seu e-mail. Nada de CPF agora. Sem spam.</p>
+        </form>
+      </div>
+
+      <div class="scan" role="img" aria-label="Exemplo de relatório mensal: 31 de 47 itens removidos">
+        <div class="scan-head mono">
+          <span>Varredura de outubro</span>
+          <span><b>31</b> de 47 removidos</span>
+        </div>
+        <div class="meter"><i></i></div>
+        <ul>
+          <li><span>consultacpf.net · CPF e endereço</span><span class="status st-ok">removido</span></li>
+          <li><span>Lista telefônica online</span><span class="status st-ok">removido</span></li>
+          <li><span>Foto antiga em fórum de 2011</span><span class="status st-sent">pedido LGPD enviado</span></li>
+          <li><span>E-mail em vazamento de loja</span><span class="status st-bad">troque a senha</span></li>
+        </ul>
+        <div class="scan-foot mono"><i></i>Titular: M•••• S•••• · CPF •••.•••.•••-42 · criptografado</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Onde encontramos você -->
+  <section class="sources">
+    <div class="wrap">
+      <p class="eyebrow">Onde seus dados costumam aparecer</p>
+      <div class="source-row">
+        <span><svg class="ico"><use href="#i-id"/></svg>Consulta de CPF</span>
+        <span><svg class="ico"><use href="#i-phone"/></svg>Listas telefônicas</span>
+        <span><svg class="ico"><use href="#i-search"/></svg>Buscadores</span>
+        <span><svg class="ico"><use href="#i-layers"/></svg>Agregadores</span>
+        <span><svg class="ico"><use href="#i-alert"/></svg>Vazamentos</span>
+        <span><svg class="ico"><use href="#i-chat"/></svg>Fóruns antigos</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Números -->
+  <section class="numbers">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat"><b>56 mi</b><span>de brasileiros sofreram golpe digital em 12 meses</span></div>
+        <div class="stat"><b>53 mi</b><span>tiveram dados pessoais expostos</span></div>
+        <div class="stat"><b>1 em 3</b><span>adultos no país já foi vítima de fraude</span></div>
+      </div>
+      <p class="fonte">Fonte: Datafolha/FBSP, 2025</p>
+    </div>
+  </section>
+
+  <!-- Manchetes -->
+  <section class="block band">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Seus dados já estão nas manchetes</h2>
+        <p>Quanto mais informação sua circula por aí, mais fácil fica aplicar um golpe com o seu nome.</p>
+      </div>
+      <div class="clips">
+        <figure class="clip clip-main">
+          <div class="paper"><img src="assets/news-datafolha.jpg" width="1100" height="412" loading="lazy" alt="Manchete: Um em cada três brasileiros sofreu golpe na internet nos últimos 12 meses, aponta Datafolha. São 56 milhões de vítimas e R$ 111,9 bilhões em perdas."></div>
+          <figcaption class="mono">Datafolha/FBSP · 14 ago 2025</figcaption>
+        </figure>
+        <div class="clip-side">
+          <figure class="clip clip-a">
+            <div class="paper"><img src="assets/news-cnn.jpg" width="1100" height="304" loading="lazy" alt="Manchete da CNN Brasil: América Latina é líder em risco de exposição de dados na IA, diz estudo da Check Point."></div>
+            <figcaption class="mono">CNN Brasil · out 2026</figcaption>
+          </figure>
+          <figure class="clip clip-b">
+            <div class="paper"><img src="assets/news-ciso.jpg" width="1100" height="230" loading="lazy" alt="Manchete do CISO Advisor: 21 mil bancos de dados expostos no Brasil, afirma ISH."></div>
+            <figcaption class="mono">CISO Advisor · 14 abr 2026</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section class="block" id="como">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>O Serasa avisa. O Sumiço resolve.</h2>
+        <p>Monitorar não tira seu CPF de lugar nenhum. A gente procura, pede a exclusão com base na lei e volta todo mês para conferir.</p>
+        <a class="btn btn-primary" href="#lista">Quero a varredura grátis</a>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="orb"><svg class="ico"><use href="#i-search"/></svg><span class="num">01</span></div>
+          <h3>Varredura</h3>
+          <p>Procuramos você em buscadores, sites de consulta de CPF, listas telefônicas, agregadores e bases de vazamentos.</p>
+        </div>
+        <div class="step">
+          <div class="orb"><svg class="ico"><use href="#i-sign"/></svg><span class="num">02</span></div>
+          <h3>Procuração digital</h3>
+          <p>Você assina um mandato eletrônico. Pela LGPD (art. 18, §3º), agimos em seu nome sem você expor sua identidade a cada site.</p>
+        </div>
+        <div class="step">
+          <div class="orb"><svg class="ico"><use href="#i-send"/></svg><span class="num">03</span></div>
+          <h3>Pedidos de exclusão</h3>
+          <p>Enviamos o pedido certo para cada fonte, contamos prazos, cobramos resposta e escalamos quando ignoram.</p>
+        </div>
+        <div class="step">
+          <div class="orb"><svg class="ico"><use href="#i-repeat"/></svg><span class="num">04</span></div>
+          <h3>Repetimos todo mês</h3>
+          <p>Dados voltam e novos sites surgem. Uma nova varredura roda todo mês e você acompanha tudo num painel.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Segurança -->
+  <section class="block band" id="seguranca">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Guardamos seus dados como se fossem os nossos</h2>
+        <p>Um serviço de privacidade que vaza não serve para nada. Por isso a arquitetura do Sumiço começa pela segurança.</p>
+      </div>
+
+      <div class="code">
+        <div class="code-bar"><span>como vemos você</span><span>titular.json</span></div>
+<pre><span class="c">// o que a nossa equipe enxerga</span>
+<span class="k">nome</span>:        <span class="s">"M•••• S••••"</span>
+<span class="k">cpf</span>:         <span class="s">"enc:aes256:7f3a…c91e"</span>
+<span class="k">procuracao</span>:  <span class="s">"enc:aes256:b02d…44fa"</span></pre>
+      </div>
+
+      <div class="sec-grid">
+        <div class="feat boxed">
+          <div class="t"><span class="badge badge-solid"><svg class="ico"><use href="#i-key"/></svg></span><h3>Criptografia por campo</h3></div>
+          <p>CPF, RG e procuração são cifrados individualmente, com chaves gerenciadas em nuvem. Nem nossa equipe lê em texto puro.</p>
+        </div>
+        <div class="feat boxed">
+          <div class="t"><span class="badge badge-solid"><svg class="ico"><use href="#i-pin"/></svg></span><h3>Dados no Brasil</h3></div>
+          <p>Infraestrutura em São Paulo. Seus dados não saem do país.</p>
+        </div>
+        <div class="feat boxed">
+          <div class="t"><span class="badge badge-solid"><svg class="ico"><use href="#i-min"/></svg></span><h3>Mínimo necessário</h3></div>
+          <p>Coletamos só o que é preciso para achar e remover você. Nada de biometria facial.</p>
+        </div>
+        <div class="feat">
+          <div class="t"><span class="badge badge-line"><svg class="ico"><use href="#i-log"/></svg></span><h3>Logs de acesso</h3></div>
+          <p>Todo acesso aos seus dados fica registrado e auditável.</p>
+        </div>
+        <div class="feat">
+          <div class="t"><span class="badge badge-line"><svg class="ico"><use href="#i-trash"/></svg></span><h3>Exclusão total ao cancelar</h3></div>
+          <p>Cancelou? Apagamos seu dossiê inteiro, inclusive de nós.</p>
+        </div>
+        <div class="feat">
+          <div class="t"><span class="badge badge-line"><svg class="ico"><use href="#i-user"/></svg></span><h3>Anti-impostor</h3></div>
+          <p>Validação de identidade impede que alguém peça a remoção dos dados de outra pessoa.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preços -->
+  <section class="block" id="precos">
+    <div class="wrap" style="max-width:1200px">
+      <div class="sec-head">
+        <h2>Preço simples, sem letra miúda</h2>
+        <p>A varredura inicial é grátis. Você só assina se quiser que a gente remova. Empresas têm um plano dedicado.</p>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <h3>Varredura</h3>
+          <div class="price"><b>Grátis</b><span>uma vez</span></div>
+          <ul>
+            <li><svg class="ico"><use href="#i-check"/></svg>Relatório do que existe sobre você</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Sem cartão de crédito</li>
+          </ul>
+          <a class="btn btn-ghost" href="#lista">Entrar na lista</a>
+        </div>
+        <div class="plan">
+          <h3>Mensal</h3>
+          <div class="price"><b>R$24,90</b><span>/mês</span></div>
+          <ul>
+            <li><svg class="ico"><use href="#i-check"/></svg>Varredura completa todo mês</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Pedidos de exclusão LGPD ilimitados</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Procuração digital incluída</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Alertas de vazamento de e-mail, telefone e CPF</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Painel com status de cada item</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Cancele quando quiser</li>
+          </ul>
+          <a class="btn btn-ghost" href="#lista">Entrar na lista</a>
+        </div>
+        <div class="plan featured">
+          <span class="tag">Economize 33%</span>
+          <h3>Anual</h3>
+          <div class="price"><b>R$199</b><span>/ano</span></div>
+          <ul>
+            <li><svg class="ico"><use href="#i-check"/></svg>Tudo do plano mensal</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Equivale a R$16,58 por mês</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Cancele quando quiser</li>
+          </ul>
+          <a class="btn btn-primary" href="#lista">Entrar na lista</a>
+        </div>
+        <div class="plan ent">
+          <span class="tag">Para empresas</span>
+          <h3>Enterprise</h3>
+          <div class="price"><b class="consult">Sob consulta</b></div>
+          <p class="lead">Proteja clientes, ex-funcionários e executivos em escala, com contrato e faturamento únicos</p>
+          <ul>
+            <li><svg class="ico"><use href="#i-check"/></svg>Volume de titulares ilimitado</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Dossiês separados por titular</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Painel e relatórios por titular</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Atendimento prioritário dedicado</li>
+          </ul>
+          <a class="btn btn-ghost" href="#lista">Falar com a gente</a>
+        </div>
+      </div>
+
+      <p class="founder">Quem entrar na lista agora garante <b>preço de fundador</b> no lançamento.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="block band" id="faq">
+    <div class="wrap narrow">
+      <div class="sec-head">
+        <h2>Perguntas honestas</h2>
+        <p>O Sumiço age em seu nome com base na Lei Geral de Proteção de Dados. Aqui está o que ele faz, o que não faz e o que acontece com os seus dados.</p>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary>Vocês garantem que tudo vai sumir?<svg class="ico"><use href="#i-chev"/></svg></summary>
+          <div class="ans">Não, e desconfie de quem garante. Prometemos processo: buscar, pedir e cobrar. Processos judiciais, notícias e registros públicos têm exceções na lei. Mostramos claramente o que é removível e o que não é.</div>
+        </details>
+        <details>
+          <summary>Isso é legal?<svg class="ico"><use href="#i-chev"/></svg></summary>
+          <div class="ans">Sim. A LGPD (art. 18) dá a você o direito de pedir a eliminação de dados, e o §3º permite que um representante faça o pedido. É exatamente o que fazemos, com a sua procuração digital.</div>
+        </details>
+        <details>
+          <summary>Por que preciso informar meu CPF?<svg class="ico"><use href="#i-chev"/></svg></summary>
+          <div class="ans">Só depois do cadastro, para identificar as páginas que são realmente suas e não de homônimos. Ele é criptografado e nunca é compartilhado além do necessário para o pedido.</div>
+        </details>
+        <details>
+          <summary>Qual a diferença para o Serasa Premium?<svg class="ico"><use href="#i-chev"/></svg></summary>
+          <div class="ans">O Serasa monitora e avisa. Nós removemos, em sites de consulta, listas telefônicas, agregadores e outras fontes que não são de crédito.</div>
+        </details>
+        <details>
+          <summary>E se eu cancelar?<svg class="ico"><use href="#i-chev"/></svg></summary>
+          <div class="ans">Apagamos todo o seu dossiê dos nossos sistemas. Seus dados não ficam conosco.</div>
+        </details>
+      </div>
+
+      <div class="cta" id="lista">
+        <div>
+          <h2>Desapareça de onde você nunca quis aparecer</h2>
+          <p>Entre na lista e seja dos primeiros a receber a varredura grátis.</p>
+        </div>
+        <form class="waitlist" novalidate>
+          <div class="form-row">
+            <label for="email" class="sr">Seu e-mail</label>
+            <input class="field" id="email" name="email" type="email" autocomplete="email" placeholder="seu@email.com" required>
+            <button class="btn btn-primary" type="submit">Quero sumir</button>
+          </div>
+          <p class="form-note" aria-live="polite">Só pedimos seu e-mail. Nada de CPF agora. Sem spam.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-cols">
+      <div><h4>Produto</h4><ul><li><a href="#como">Como funciona</a></li><li><a href="#seguranca">Segurança</a></li><li><a href="#precos">Preços</a></li><li><a href="#faq">Dúvidas</a></li></ul></div>
+      <div><h4>Planos</h4><ul><li><a href="#precos">Varredura grátis</a></li><li><a href="#precos">Mensal</a></li><li><a href="#precos">Anual</a></li><li><a href="#precos">Enterprise</a></li></ul></div>
+      <div><h4>Seus direitos</h4><ul><li><a href="#faq">LGPD, art. 18</a></li><li><a href="#faq">Procuração digital</a></li><li><a href="#faq">O que não dá para remover</a></li></ul></div>
+      <div><h4>Legal</h4><ul><li><a href="#topo">Política de privacidade</a></li><li><a href="#topo">Termos de uso</a></li><li><a href="#topo">Encarregado (DPO)</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span class="logo">
+        <img src="assets/symbol-96.png" alt="" width="16" height="24">
+        Sumiço
+      </span>
+      <span>© 2026 Sumiço · Feito no Brasil, em conformidade com a LGPD</span>
+      <span class="pill"><i></i>Status: <em>lista de espera aberta</em></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var key = 'sumico-lista', saved = null;
+  try { saved = localStorage.getItem(key); } catch (e) {}
+  document.querySelectorAll('form.waitlist').forEach(function (form) {
+    var input = form.querySelector('input[type=email]');
+    var note = form.querySelector('.form-note');
+    if (saved) { note.textContent = 'Você já está na lista com ' + saved + '.'; note.className = 'form-note ok'; }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = input.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+        note.textContent = 'Confira o e-mail. Ele precisa ter o formato nome@dominio.com.';
+        note.className = 'form-note err'; input.focus(); return;
+      }
+      try { localStorage.setItem(key, v); } catch (e2) {}
+      note.textContent = 'Pronto. Avisaremos ' + v + ' quando a varredura grátis abrir.';
+      note.className = 'form-note ok'; input.value = '';
+    });
+  });
+})();
+</script>
+<script>
+/* Aba "O que este site já sabe sobre você".
+   Lê a localização aproximada no nosso próprio endpoint (/api/geo, função da Vercel),
+   que usa os cabeçalhos de geolocalização da própria Vercel. O IP não vai para terceiros
+   e nada é guardado. Se o endpoint não responder (preview local, bloqueio, rede),
+   a aba mostra uma mensagem genérica, sem inventar dados. */
+(function () {
+  var body = document.getElementById('exp-body');
+  var box = document.getElementById('exposure');
+  if (!body) return;
+
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function maskIp(ip) {
+    if (!ip) return '';
+    if (ip.indexOf(':') > -1) return ip.split(':').slice(0, 3).join(':') + ':••••';
+    var p = ip.split('.'); return p.length === 4 ? p[0] + '.' + p[1] + '.•••.•••' : ip;
+  }
+  function render(g) {
+    var place = [g.city, g.region].filter(Boolean).join(', ');
+    if (!place) return fallback();
+    var html = 'Você parece estar em <b>' + esc(place) + '</b>, agora.';
+    if (g.ip) html += ' <span class="mono">IP ' + esc(maskIp(g.ip)) + '</span>';
+    body.innerHTML = html;
+    box.classList.add('ready');
+  }
+  function fallback() {
+    body.textContent = 'Todo site que você abre recebe o seu IP e, com ele, sua cidade aproximada e sua operadora. Sem pedir licença.';
+    var f = document.getElementById('exp-foot'); if (f) f.textContent = 'Inclusive este. A diferença é que nós não guardamos.';
+    box.classList.add('ready');
+  }
+  if (!window.fetch) return fallback();
+  var ctl = 'AbortController' in window ? new AbortController() : null;
+  var t = setTimeout(function () { ctl && ctl.abort(); }, 3000);
+  fetch('/api/geo', { signal: ctl ? ctl.signal : undefined, cache: 'no-store', credentials: 'omit' })
+    .then(function (r) { clearTimeout(t); if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(render)
+    .catch(fallback);
+})();
+</script>
