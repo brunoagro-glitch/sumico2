@@ -162,7 +162,7 @@ p { margin: 0 }
 .big-play svg { width: 32px; height: 32px; margin-left: 4px }
 .player:hover .big-play, .player.idle .big-play { opacity: 1; transform: none }
 .player.sound .big-play { display: none }
-.player-empty { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--fg-3); font-size: 14px; background: radial-gradient(60% 60% at 50% 50%, #12161f, #08090d) }
+.player-empty { position: absolute; inset: auto 0 0; display: none; padding: 16px 20px; text-align: center; color: #fff; font-size: 14px; background: linear-gradient(transparent, rgba(0,0,0,.8)) }
 .player.missing .player-empty { display: grid }
 .player.missing .mute-tag, .player.missing .big-play { display: none }
 @media (max-width: 560px) { .player { border-radius: 14px } .mute-tag { left: 12px; bottom: 12px; padding: 8px 12px 8px 10px; font-size: 13px } .mute-tag small { display: none } .big-play { width: 64px; height: 64px } .big-play svg { width: 24px; height: 24px } }
@@ -409,7 +409,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
           <svg class="ico" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/></svg>
           <span>Rodando sem som<small>Clique para assistir do início com áudio</small></span>
         </span>
-        <div class="player-empty">O vídeo aparece aqui quando o arquivo sumico.mp4 estiver no site</div>
+        <div class="player-empty">Não foi possível carregar o vídeo agora. Recarregue a página para tentar de novo.</div>
       </div>
     </div>
   </section>
@@ -758,8 +758,8 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 
   v.addEventListener('error', function () { box.classList.add('missing'); });
   v.addEventListener('loadeddata', function () { box.classList.remove('missing'); });
-  function checkMissing() { if (v.error || v.networkState === 3) box.classList.add('missing'); }
-  checkMissing(); setTimeout(checkMissing, 1500);
+  function checkMissing() { if (v.error) box.classList.add('missing'); }
+  checkMissing();
 
   function tryPlay() { var p = v.play(); if (p && p.catch) p.catch(function () { checkMissing(); box.classList.add('idle'); }); }
 
