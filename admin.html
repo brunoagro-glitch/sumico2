@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sumiço · Admin</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<style>
+:root { color-scheme: dark; --bg: #08090d; --surface: #0d0f15; --raised: #1a1d26; --line: rgba(238,240,245,.10); --line-strong: rgba(238,240,245,.18); --fg: #eef0f5; --fg-2: #a3a9b8; --fg-3: #7a8296; --accent: #3d8bff; --ok: #4cc38a; --warn: #e0a64b; --bad: #ef6b6f; --mono: ui-monospace, "SFMono-Regular", Menlo, monospace }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px }
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px }
+header h1 { margin: 0; font-size: 20px; font-weight: 600 }
+header .sp { flex: 1 }
+.btn { height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--fg); font-family: inherit; font-weight: 500; font-size: 13px; cursor: pointer }
+.btn:hover { background: var(--raised) }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff }
+.login { max-width: 360px; margin: 15vh auto 0; padding: 28px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface) }
+.login h1 { margin: 0 0 16px; font-size: 18px }
+.login input { width: 100%; height: 42px; margin-bottom: 12px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg); font: inherit }
+.login .btn { width: 100%; height: 42px }
+.err { color: var(--bad); font-size: 13px; min-height: 20px; margin: 8px 0 0 }
+.status { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; font: 12px var(--mono); color: var(--fg-2) }
+.chip i { width: 7px; height: 7px; border-radius: 50% }
+.chip.on i { background: var(--ok) } .chip.off i { background: var(--bad) } .chip.test i { background: var(--warn) }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px }
+.kpi { padding: 16px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface) }
+.kpi b { display: block; font: 500 28px/1 var(--mono) }
+.kpi span { color: var(--fg-2); font-size: 13px }
+.tbl { overflow-x: auto; border: 1px solid var(--line-strong); border-radius: 12px }
+table { width: 100%; border-collapse: collapse; min-width: 760px }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top }
+th { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3); background: var(--surface); position: sticky; top: 0 }
+td.num { font-family: var(--mono); text-align: right }
+td small { display: block; color: var(--fg-3); font-size: 12px }
+.tag { font: 12px var(--mono); padding: 2px 6px; border-radius: 6px }
+.tag.ok { color: var(--ok); background: rgba(76,195,138,.12) } .tag.warn { color: var(--warn); background: rgba(224,166,75,.12) } .tag.bad { color: var(--bad); background: rgba(239,107,111,.12) }
+.empty { padding: 32px; text-align: center; color: var(--fg-3) }
+input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg); font: inherit; width: 220px; max-width: 40vw }
+@media (max-width: 560px) { header { flex-wrap: wrap } input.search { width: 100%; max-width: none; order: 5 } }
+</style>
+</head>
+<body>
+<div id="login" class="login" hidden>
+  <h1>Sumiço · Admin</h1>
+  <form id="login-form">
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Senha de administrador" required>
+    <button class="btn primary" type="submit">Entrar</button>
+    <p class="err" id="login-err" role="alert"></p>
+  </form>
+</div>
+
+<div id="app" class="wrap" hidden>
+  <header>
+    <h1>Varreduras</h1>
+    <span class="sp"></span>
+    <input class="search" id="q" type="search" placeholder="Filtrar por nome ou e-mail">
+    <button class="btn" id="reload" type="button">Atualizar</button>
+    <button class="btn" id="csv" type="button">Exportar CSV</button>
+    <button class="btn" id="logout" type="button">Sair</button>
+  </header>
+  <div class="status" id="status"></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Quando</th><th>Nome</th><th>E-mail</th><th>Cidade</th><th>Páginas</th><th>Vazamentos</th><th>E-mail enviado</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+</div>
+
+<script>
+(function () {
+  var KEY = 'sumico-admin', pw = '';
+  try { pw = sessionStorage.getItem(KEY) || ''; } catch (e) {}
+  var data = null;
+  function $(id) { return document.getElementById(id); }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  function showLogin(msg) { $('app').hidden = true; $('login').hidden = false; $('login-err').textContent = msg || ''; $('pw').focus(); }
+
+  function load() {
+    return fetch('/api/admin', { headers: { 'x-admin-password': pw }, cache: 'no-store' })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.status !== 200) { try { sessionStorage.removeItem(KEY); } catch (e) {} return showLogin(res.d.message || 'Erro ' + res.status); }
+        try { sessionStorage.setItem(KEY, pw); } catch (e) {}
+        data = res.d; $('login').hidden = true; $('app').hidden = false; render();
+      })
+      .catch(function () { showLogin('Sem conexão com o servidor.'); });
+  }
+
+  function mailTag(m) {
+    if (m === 'enviado') return '<span class="tag ok">enviado</span>';
+    if (m === 'not_configured') return '<span class="tag warn">Resend sem chave</span>';
+    if (m === 'restricted') return '<span class="tag warn">domínio não verificado</span>';
+    return '<span class="tag bad">' + esc(m || 'erro') + '</span>';
+  }
+
+  function render() {
+    var q = $('q').value.trim().toLowerCase();
+    var scans = (data.scans || []).filter(function (s) { return !q || (s.name + ' ' + s.email).toLowerCase().indexOf(q) > -1; });
+    var sent = (data.scans || []).filter(function (s) { return s.mail === 'enviado'; }).length;
+    var withHits = (data.scans || []).filter(function (s) { return s.found > 0; }).length;
+    $('kpis').innerHTML =
+      '<div class="kpi"><b>' + (data.leads || 0) + '</b><span>leads (e-mails únicos)</span></div>' +
+      '<div class="kpi"><b>' + (data.total || 0) + '</b><span>varreduras feitas</span></div>' +
+      '<div class="kpi"><b>' + withHits + '</b><span>com páginas encontradas</span></div>' +
+      '<div class="kpi"><b>' + sent + '</b><span>relatórios enviados</span></div>';
+    if (!data.db) { $('rows').innerHTML = '<tr><td colspan="7" class="empty">O banco (Upstash) não está conectado ao projeto. As varreduras funcionam, mas não ficam salvas.</td></tr>'; return; }
+    if (!scans.length) { $('rows').innerHTML = '<tr><td colspan="7" class="empty">' + (q ? 'Nada com esse filtro.' : 'Nenhuma varredura ainda.') + '</td></tr>'; return; }
+    $('rows').innerHTML = scans.map(function (s) {
+      var d = new Date(s.at);
+      return '<tr><td>' + esc(d.toLocaleDateString('pt-BR')) + '<small>' + esc(d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) + '</small></td>' +
+        '<td>' + esc(s.name) + '</td><td>' + esc(s.email) + '</td><td>' + esc(s.city || '—') + '</td>' +
+        '<td class="num">' + (s.searchError ? '<span class="tag bad">falhou</span>' : s.found) + '</td>' +
+        '<td class="num">' + (s.breachError ? '<span class="tag bad">falhou</span>' : (s.breaches == null ? '—' : s.breaches)) + '</td>' +
+        '<td>' + mailTag(s.mail) + (s.mailDetail ? '<small>' + esc(s.mailDetail) + '</small>' : '') + '</td></tr>';
+    }).join('');
+  }
+
+  function status() {
+    fetch('/api/config', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) {
+      var f = c.features || {};
+      function chip(on, label) { return '<span class="chip ' + (on ? 'on' : 'off') + '"><i></i>' + label + '</span>'; }
+      $('status').innerHTML = chip(f.db, 'Upstash') + chip(f.search, 'Serper') + chip(f.email, 'Resend') + chip(f.breaches, 'HIBP') +
+        '<span class="chip ' + (c.turnstileTest ? 'test' : 'on') + '"><i></i>Turnstile ' + (c.turnstileTest ? '(teste)' : '') + '</span>';
+    }).catch(function () {});
+  }
+
+  function csv() {
+    var rows = [['data', 'nome', 'email', 'cidade', 'paginas', 'vazamentos', 'email_enviado']].concat((data.scans || []).map(function (s) { return [s.at, s.name, s.email, s.city, s.found, s.breaches == null ? '' : s.breaches, s.mail]; }));
+    var text = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'sumico-varreduras.csv'; a.click();
+  }
+
+  $('login-form').addEventListener('submit', function (e) { e.preventDefault(); pw = $('pw').value; $('login-err').textContent = ''; load(); });
+  $('reload').addEventListener('click', load);
+  $('csv').addEventListener('click', function () { if (data) csv(); });
+  $('logout').addEventListener('click', function () { pw = ''; try { sessionStorage.removeItem(KEY); } catch (e) {} showLogin(''); });
+  $('q').addEventListener('input', function () { if (data) render(); });
+
+  status();
+  if (pw) load(); else showLogin('');
+})();
+</script>
+</body>
+</html>
