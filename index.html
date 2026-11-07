@@ -622,7 +622,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         <div class="term-seg" id="term" role="radiogroup" aria-label="Período do plano" data-v="1">
           <span class="thumb" aria-hidden="true"></span>
           <button type="button" role="radio" aria-checked="true" data-years="1">1 ano</button>
-          <button type="button" role="radio" aria-checked="false" data-years="2">2 anos<small>−15%</small></button>
+          <button type="button" role="radio" aria-checked="false" data-years="2">2 anos<small id="term-chip">−43%</small></button>
         </div>
       </div>
       <div class="plans">
@@ -1062,12 +1062,16 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 (function () {
   var seg = document.getElementById('term');
   if (!seg) return;
-  var YEAR = 199, DISCOUNT = 0.15;
+  var YEAR = 199, DISCOUNT = 0.15, MONTHLY = 24.90;
   var two = Math.round(YEAR * 2 * (1 - DISCOUNT) * 100) / 100;
+  // Economia sempre comparada ao plano mensal, para os dois períodos usarem a mesma base.
+  var save1 = Math.round((1 - YEAR / (MONTHLY * 12)) * 100);
+  var save2 = Math.round((1 - two / (MONTHLY * 24)) * 100);
+  document.getElementById('term-chip').textContent = '−' + save2 + '%';
   var brl = function (v) { return 'R$' + (v % 1 ? v.toFixed(2) : String(v)).replace('.', ','); };
   var T = {
-    1: { tag: 'Economize 33%', title: 'Anual', price: '<b>' + brl(YEAR) + '</b><span>/ano</span>', month: 'Equivale a ' + brl(Math.round(YEAR / 12 * 100) / 100) + ' por mês', note: 'Cancele quando quiser' },
-    2: { tag: '15% de desconto', title: '2 anos', price: '<b>' + brl(two) + '</b><span>/2 anos</span>', month: 'Equivale a ' + brl(Math.round(two / 24 * 100) / 100) + ' por mês', note: 'Em vez de ' + brl(YEAR * 2) + ' em dois anos' }
+    1: { tag: 'Economize ' + save1 + '%', title: 'Anual', price: '<b>' + brl(YEAR) + '</b><span>/ano</span>', month: 'Equivale a ' + brl(Math.round(YEAR / 12 * 100) / 100) + ' por mês', note: 'Cancele quando quiser' },
+    2: { tag: 'Economize ' + save2 + '%', title: '2 anos', price: '<b>' + brl(two) + '</b><span>/2 anos</span>', month: 'Equivale a ' + brl(Math.round(two / 24 * 100) / 100) + ' por mês', note: '15% a menos que 2 anos do plano anual' }
   };
   var ids = ['tag', 'title', 'price', 'month', 'note'];
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
