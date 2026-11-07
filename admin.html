@@ -114,7 +114,7 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
       var d = new Date(s.at);
       return '<tr><td>' + esc(d.toLocaleDateString('pt-BR')) + '<small>' + esc(d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) + '</small></td>' +
         '<td>' + esc(s.name) + '</td><td>' + esc(s.email) + '</td><td>' + esc(s.city || '—') + '</td>' +
-        '<td class="num">' + (s.searchError ? '<span class="tag bad">falhou</span>' : s.found) + '</td>' +
+        '<td class="num">' + (s.searchError ? '<span class="tag bad">falhou</span>' + (s.searchDetail ? '<small>' + esc(s.searchDetail) + '</small>' : '') : s.found) + '</td>' +
         '<td class="num">' + (s.breachError ? '<span class="tag bad">falhou</span>' : (s.breaches == null ? '—' : s.breaches)) + '</td>' +
         '<td>' + mailTag(s.mail) + (s.mailDetail ? '<small>' + esc(s.mailDetail) + '</small>' : '') + '</td></tr>';
     }).join('');

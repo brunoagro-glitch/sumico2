@@ -66,7 +66,10 @@ async function serperSearch(key, q) {
     headers: { 'X-API-KEY': key, 'Content-Type': 'application/json' },
     body: JSON.stringify({ q, gl: 'br', hl: 'pt-br', num: 20 }),
   }, 8000);
-  if (!r.ok) throw new Error('serper ' + r.status);
+  if (!r.ok) {
+    const msg = (r.data && (r.data.message || r.data.error || r.data.raw)) || '';
+    throw new Error('Serper ' + r.status + (msg ? ': ' + String(msg).slice(0, 150) : ''));
+  }
   return (r.data && r.data.organic) || [];
 }
 
@@ -78,7 +81,11 @@ async function searchName(cfg, name, city) {
 
   const settled = await Promise.allSettled(queries.map((q) => serperSearch(cfg.serper, q)));
   const failed = settled.filter((s) => s.status === 'rejected').length;
-  if (failed === settled.length) return { enabled: true, error: true, total: 0, groups: [] };
+  if (failed === settled.length) {
+    const detail = String(settled[0].reason && settled[0].reason.message || settled[0].reason).slice(0, 200);
+    console.error('busca falhou:', detail);
+    return { enabled: true, error: true, errorDetail: detail, total: 0, groups: [] };
+  }
 
   const tokens = nameTokens(name);
   const seen = new Set();
@@ -219,7 +226,8 @@ async function sendReport(cfg, to, name, report) {
       body: JSON.stringify({ from: cfg.resendFrom, to: [to], subject: mail.subject, html: mail.html, text: mail.text }),
     }, 8000);
     if (r.ok) return { sent: true, id: r.data && r.data.id };
-    const msg = (r.data && (r.data.message || r.data.name)) || ('status ' + r.status);
+    const msg = 'Resend ' + r.status + ': ' + ((r.data && (r.data.message || r.data.name)) || '');
+    console.error('envio falhou:', msg);
     return { sent: false, reason: r.status === 403 ? 'restricted' : 'error', detail: String(msg).slice(0, 200) };
   } catch (e) {
     return { sent: false, reason: 'error', detail: String(e.message || e).slice(0, 200) };

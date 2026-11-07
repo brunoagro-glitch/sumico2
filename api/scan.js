@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
     found: search.total || 0,
     groups: (search.groups || []).map((g) => ({ id: g.id, n: g.items.length })),
     breaches: breaches.enabled ? breaches.breaches.length : null,
-    searchError: !!search.error, breachError: !!breaches.error,
+    searchError: !!search.error, searchDetail: search.errorDetail || '', breachError: !!breaches.error,
     mail: mail.sent ? 'enviado' : (mail.reason || 'erro'), mailDetail: mail.detail || '',
   };
   let stored = false;
@@ -74,7 +74,7 @@ module.exports = async (req, res) => {
     ok: true,
     search,
     breaches,
-    mail: { sent: mail.sent, reason: mail.reason || null },
+    mail: { sent: mail.sent, reason: mail.reason || null, detail: mail.detail || null },
     stored,
   });
 };
