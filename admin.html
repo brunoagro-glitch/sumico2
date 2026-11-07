@@ -162,7 +162,8 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
       return '<tr><td>' + esc(d.toLocaleDateString('pt-BR')) + '<small>' + esc(d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) + '</small></td>' +
         '<td>' + esc(s.name) + '</td><td>' + esc(s.email) + '</td><td>' + esc(s.city || '—') + '</td>' +
         '<td class="num">' + (s.searchError ? '<span class="tag bad">falhou</span>' + (s.searchDetail ? '<small>' + esc(s.searchDetail) + '</small>' : '') : s.found) + '</td>' +
-        '<td class="num">' + (s.breachError ? '<span class="tag bad">falhou</span>' : (s.breaches == null ? '—' : s.breaches)) + '</td>' +
+        '<td class="num">' + (s.breachError ? '<span class="tag bad">falhou</span>' : s.breachUnavailable ? '<span class="tag warn">limite</span>' : (s.breaches == null ? '—' : s.breaches)) +
+          (s.breachSource ? '<small>' + (s.breachSource === 'xon' ? 'XposedOrNot' : 'HIBP') + '</small>' : '') + '</td>' +
         '<td>' + mailTag(s.mail) + (s.mailDetail ? '<small>' + esc(s.mailDetail) + '</small>' : '') + '</td></tr>';
     }).join('');
   }
@@ -171,7 +172,7 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
     fetch('/api/config', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (c) {
       var f = c.features || {};
       function chip(on, label) { return '<span class="chip ' + (on ? 'on' : 'off') + '"><i></i>' + label + '</span>'; }
-      $('status').innerHTML = chip(f.db, 'Upstash') + chip(f.search, 'Serper') + chip(f.email, 'Resend') + chip(f.breaches, 'HIBP') +
+      $('status').innerHTML = chip(f.db, 'Upstash') + chip(f.search, 'Serper') + chip(f.email, 'Resend') + chip(f.breaches, 'Vazamentos: ' + (c.breachProvider === 'xon' ? 'XposedOrNot' : c.breachProvider === 'hibp' ? 'HIBP' : 'desligado')) +
         '<span class="chip ' + (c.turnstileTest ? 'test' : 'on') + '"><i></i>Turnstile ' + (c.turnstileTest ? '(teste)' : '') + '</span>';
     }).catch(function () {});
   }

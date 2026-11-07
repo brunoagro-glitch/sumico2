@@ -14,6 +14,7 @@ function config() {
   return {
     serper: env('SERPER_API_KEY'),
     hibp: env('HIBP_API_KEY'),
+    breachProvider: (env('BREACH_PROVIDER') || 'auto').toLowerCase(),
     resend: env('RESEND_API_KEY'),
     resendFrom: env('RESEND_FROM') || 'Sumiço <onboarding@resend.dev>',
     redisUrl: env('KV_REST_API_URL') || env('UPSTASH_REDIS_REST_URL'),

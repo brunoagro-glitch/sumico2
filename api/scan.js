@@ -52,7 +52,8 @@ module.exports = async (req, res) => {
     id, at: new Date(now).toISOString(), name, email, city,
     found: search.total || 0,
     groups: (search.groups || []).map((g) => ({ id: g.id, n: g.items.length })),
-    breaches: breaches.enabled ? breaches.breaches.length : null,
+    breaches: breaches.enabled && !breaches.error && !breaches.unavailable ? breaches.breaches.length : null,
+    breachSource: breaches.provider || '', breachUnavailable: !!breaches.unavailable,
     searchError: !!search.error, searchDetail: search.errorDetail || '', breachError: !!breaches.error,
     mail: mail.sent ? 'enviado' : (mail.reason || 'erro'), mailDetail: mail.detail || '',
   };

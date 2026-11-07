@@ -6,7 +6,8 @@ Site estático (`index.html`) com funções da Vercel em `api/`.
 - `index.html` — landing. Os botões "Quero sumir" abrem o pop-up da varredura grátis.
 - `admin.html` — painel em `/admin` com as varreduras e os leads (senha em `ADMIN_PASSWORD`).
 - `api/geo.js` — cidade aproximada do visitante, pelos cabeçalhos da própria Vercel.
-- `api/scan.js` — varredura: busca o nome (Serper), consulta vazamentos do e-mail (HIBP),
+- `api/scan.js` — varredura: busca o nome (Serper), consulta vazamentos do e-mail
+  (HIBP com chave; sem ela, XposedOrNot grátis),
   envia o relatório (Resend) e guarda o lead (Upstash Redis).
 - `api/config.js` — chave pública do Turnstile e quais integrações estão ativas.
 - `api/admin.js` — dados do painel.
@@ -18,7 +19,8 @@ Site estático (`index.html`) com funções da Vercel em `api/`.
 | `ADMIN_PASSWORD` | Senha do `/admin` |
 | `SERPER_API_KEY` | Busca do nome no Google |
 | `RESEND_API_KEY` | Envio do relatório por e-mail |
-| `HIBP_API_KEY` | Vazamentos (opcional; sem ela o relatório sai só com o nome) |
+| `HIBP_API_KEY` | Opcional. Com ela os vazamentos vêm do HIBP; sem ela, do XposedOrNot (grátis, sem chave) |
+| `BREACH_PROVIDER` | Opcional: `auto` (padrão), `xon`, `hibp` ou `off` |
 | `SITE_URL` | Link usado nos e-mails |
 | `RESEND_FROM` | Opcional. Remetente após verificar um domínio no Resend |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Opcional. Sem elas usa as chaves de teste da Cloudflare |
@@ -31,3 +33,15 @@ da conta do Resend.
 
 ## Limites
 10 varreduras por IP por hora e 3 por e-mail por dia (exige o Upstash conectado).
+
+## Vazamentos
+- `auto`: HIBP quando há `HIBP_API_KEY`, senão XposedOrNot (`/v1/breach-analytics`).
+- XposedOrNot grátis: 2 consultas/s, 25/hora e 100/dia por IP (os IPs da Vercel são
+  compartilhados). Ao receber 429 o relatório sai com "vazamentos indisponíveis agora"
+  e o site para de consultar por 10 minutos.
+- Cada resultado fica no Upstash por 30 dias (chave com hash do e-mail, sem o e-mail em claro).
+
+## Fornecedores que recebem dados do visitante (LGPD)
+Para a política de privacidade: Vercel (hospedagem), Upstash (banco), Serper (nome e cidade),
+Resend (e-mail e relatório), Cloudflare Turnstile (verificação anti-robô) e
+XposedOrNot ou Have I Been Pwned (e-mail, para checar vazamentos).

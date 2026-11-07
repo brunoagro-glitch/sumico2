@@ -1,7 +1,7 @@
-// Lógica da varredura grátis: busca do nome (Serper), vazamentos do e-mail (HIBP)
-// e o e-mail com o relatório (Resend).
+// Lógica da varredura grátis: busca do nome (Serper), vazamentos do e-mail
+// (HIBP ou XposedOrNot) e o e-mail com o relatório (Resend).
 
-const { fetchJson, esc } = require('./_lib');
+const { fetchJson, esc, sha, redis } = require('./_lib');
 
 const STOP = new Set(['da', 'de', 'do', 'das', 'dos', 'e', 'di', 'du', 'del', 'la', 'van', 'von']);
 
@@ -153,26 +153,89 @@ const DATA_PT = {
   'Purchases': 'compras', 'Bank account numbers': 'conta bancária', 'Password hints': 'dica de senha',
 };
 
-async function checkBreaches(cfg, email) {
-  if (!cfg.hibp) return { enabled: false, breaches: [] };
+// ---------- Vazamentos ----------
+// Fonte escolhida por BREACH_PROVIDER: auto (padrão: HIBP se houver chave, senão XposedOrNot),
+// xon, hibp ou off.
+const PROVIDERS = { hibp: 'Have I Been Pwned', xon: 'XposedOrNot' };
+
+function breachProvider(cfg) {
+  const p = cfg.breachProvider;
+  if (p === 'off') return '';
+  if (p === 'xon') return 'xon';
+  if (p === 'hibp') return cfg.hibp ? 'hibp' : '';
+  return cfg.hibp ? 'hibp' : 'xon';
+}
+
+function toBreach(name, domain, date, classes) {
+  const list = classes.map((d) => String(d).trim()).filter(Boolean);
+  return { name, domain: domain || '', date: date || '', data: list.map((d) => DATA_PT[d] || d), password: list.includes('Passwords') };
+}
+
+const byDateDesc = (a, b) => String(b.date).localeCompare(String(a.date));
+
+// Cada função devolve { breaches } ou { error: true } ou { unavailable: true } (limite atingido).
+async function queryHibp(cfg, email) {
   const url = 'https://haveibeenpwned.com/api/v3/breachedaccount/' + encodeURIComponent(email) + '?truncateResponse=false';
+  const r = await fetchJson(url, { headers: { 'hibp-api-key': cfg.hibp, 'user-agent': 'Sumico-Varredura' } }, 8000);
+  if (r.status === 404) return { breaches: [] };
+  if (r.status === 429) return { unavailable: true };
+  if (!r.ok || !Array.isArray(r.data)) return { error: true, detail: 'HIBP ' + r.status };
+  return { breaches: r.data.map((b) => toBreach(b.Title || b.Name, b.Domain, b.BreachDate, b.DataClasses || [])).sort(byDateDesc) };
+}
+
+async function checkXposedOrNot(email) {
+  const url = 'https://api.xposedornot.com/v1/breach-analytics?email=' + encodeURIComponent(email);
+  const r = await fetchJson(url, { headers: { 'user-agent': 'Sumico-Varredura', accept: 'application/json' } }, 8000);
+  if (r.status === 429) return { unavailable: true };
+  // E-mail sem vazamentos: a API responde 200 com campos nulos (ou 404 / {"Error":"Not found"}).
+  if (r.status === 404) return { breaches: [] };
+  if (!r.ok || !r.data || typeof r.data !== 'object') return { error: true, detail: 'XposedOrNot ' + r.status };
+  if (r.data.Error) return /not found/i.test(r.data.Error) ? { breaches: [] } : { error: true, detail: 'XposedOrNot: ' + String(r.data.Error).slice(0, 100) };
+  const list = (r.data.ExposedBreaches && r.data.ExposedBreaches.breaches_details) || [];
+  if (!Array.isArray(list)) return { error: true, detail: 'XposedOrNot: formato inesperado' };
+  return {
+    breaches: list
+      .map((b) => toBreach(b.breach, b.domain, String(b.xposed_date || ''), String(b.xposed_data || '').split(';')))
+      .sort(byDateDesc),
+  };
+}
+
+const CACHE_TTL = 30 * 86400; // 30 dias
+const COOLDOWN_TTL = 10 * 60; // depois de um 429, não insiste por 10 minutos
+
+async function checkBreaches(cfg, email) {
+  const provider = breachProvider(cfg);
+  if (!provider) return { enabled: false, breaches: [] };
+  const base = { enabled: true, provider, source: PROVIDERS[provider] };
+  const cacheKey = 'breach:' + provider + ':' + sha(email).slice(0, 32);
+  const coolKey = 'breach:cooldown:' + provider;
+
   try {
-    const r = await fetchJson(url, { headers: { 'hibp-api-key': cfg.hibp, 'user-agent': 'Sumico-Varredura' } }, 8000);
-    if (r.status === 404) return { enabled: true, breaches: [] };
-    if (!r.ok || !Array.isArray(r.data)) return { enabled: true, error: true, breaches: [] };
-    const breaches = r.data
-      .map((b) => ({
-        name: b.Title || b.Name,
-        domain: b.Domain || '',
-        date: b.BreachDate || '',
-        data: (b.DataClasses || []).map((d) => DATA_PT[d] || d),
-        password: (b.DataClasses || []).includes('Passwords'),
-      }))
-      .sort((a, b) => String(b.date).localeCompare(String(a.date)));
-    return { enabled: true, breaches };
-  } catch {
-    return { enabled: true, error: true, breaches: [] };
+    const [cached, cooling] = (await redis(cfg, [['GET', cacheKey], ['EXISTS', coolKey]])) || [];
+    if (cached) return Object.assign(base, { breaches: JSON.parse(cached), cached: true });
+    if (Number(cooling) > 0) return Object.assign(base, { unavailable: true, breaches: [] });
+  } catch (e) {
+    console.warn('cache de vazamentos indisponível:', e.message);
   }
+
+  let out;
+  try {
+    out = provider === 'hibp' ? await queryHibp(cfg, email) : await checkXposedOrNot(email);
+  } catch (e) {
+    out = { error: true, detail: String(e.message || e).slice(0, 100) };
+  }
+
+  if (out.unavailable) {
+    console.warn('vazamentos: limite atingido em', provider);
+    try { await redis(cfg, [['SET', coolKey, '1', 'EX', String(COOLDOWN_TTL)]]); } catch {}
+    return Object.assign(base, { unavailable: true, breaches: [] });
+  }
+  if (out.error) {
+    console.error('vazamentos falhou:', out.detail);
+    return Object.assign(base, { error: true, breaches: [] });
+  }
+  try { await redis(cfg, [['SET', cacheKey, JSON.stringify(out.breaches), 'EX', String(CACHE_TTL)]]); } catch {}
+  return Object.assign(base, { breaches: out.breaches });
 }
 
 // ---------- E-mail ----------
@@ -190,6 +253,7 @@ function fmtDate(d) {
 
 function buildEmail(cfg, name, report) {
   const s = report.search, b = report.breaches;
+  const bOk = b.enabled && !b.error && !b.unavailable;
   const fn = esc(firstName(name));
   const C = { bg: '#f4f5f7', card: '#ffffff', fg: '#0b0d14', fg2: '#4b5262', line: '#e3e6ec', accent: '#1f63e0', warn: '#a86a10', bad: '#c2393d' };
   const parts = [];
@@ -198,7 +262,7 @@ function buildEmail(cfg, name, report) {
 
   const tiles = [];
   if (s.enabled) tiles.push([s.total, 'páginas citando seu nome']);
-  if (b.enabled) tiles.push([b.breaches.length, b.breaches.length === 1 ? 'vazamento com seu e-mail' : 'vazamentos com seu e-mail']);
+  if (bOk) tiles.push([b.breaches.length, b.breaches.length === 1 ? 'vazamento com seu e-mail' : 'vazamentos com seu e-mail']);
   if (tiles.length) {
     parts.push('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 24px"><tr>' +
       tiles.map(([n, l]) => `<td style="padding:16px;border:1px solid ${C.line};border-radius:10px;background:${C.card}"><div style="font:600 28px/1 Menlo,monospace;color:${C.fg}">${n}</div><div style="margin-top:6px;font-size:13px;color:${C.fg2}">${l}</div></td>`).join('<td width="12"></td>') +
@@ -220,11 +284,14 @@ function buildEmail(cfg, name, report) {
 
   if (b.enabled) {
     parts.push(`<h3 style="margin:28px 0 8px;font-size:16px;color:${C.fg}">Vazamentos com o seu e-mail</h3>`);
-    if (b.error) parts.push(`<p style="font-size:14px;color:${C.warn}">A consulta de vazamentos falhou desta vez.</p>`);
+    if (b.unavailable) parts.push(`<p style="font-size:14px;color:${C.warn}">Vazamentos indisponíveis agora: a base de consulta atingiu o limite de acessos. Peça uma nova varredura mais tarde para ver esta parte.</p>`);
+    else if (b.error) parts.push(`<p style="font-size:14px;color:${C.warn}">A consulta de vazamentos falhou desta vez.</p>`);
     else if (b.breaches.length === 0) parts.push(`<p style="font-size:14px;color:${C.fg2}">Seu e-mail não aparece nas bases de vazamentos conhecidas. Ótimo sinal.</p>`);
     for (const x of b.breaches.slice(0, 15)) {
       parts.push(`<div style="padding:10px 0;border-top:1px solid ${C.line}"><b style="font-size:14px;color:${C.fg}">${esc(x.name)}</b> <span style="font-size:12px;color:${C.fg2}">${esc(fmtDate(x.date))}</span><div style="font-size:13px;color:${C.fg2};margin-top:4px">Dados expostos: ${esc(x.data.join(', '))}</div>${x.password ? `<div style="font-size:13px;color:${C.bad};margin-top:4px">Sua senha vazou aqui. Troque-a em todo lugar onde usa a mesma.</div>` : ''}</div>`);
     }
+    if (b.breaches.length > 15) parts.push(`<p style="font-size:12px;color:${C.fg2}">E mais ${b.breaches.length - 15} vazamentos.</p>`);
+    if (b.source) parts.push(`<p style="margin-top:12px;font-size:12px;color:${C.fg2}">Fonte dos vazamentos: ${esc(b.source)}</p>`);
   }
 
   parts.push(`<div style="margin:32px 0 8px;padding:20px;border-radius:12px;background:${C.fg};color:#fff"><b style="font-size:16px">Quer que a gente peça a remoção?</b><p style="margin:8px 0 16px;font-size:14px;color:#c9ceda">O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês. Você está na lista de espera com preço de fundador.</p><a href="${esc(cfg.siteUrl)}/#precos" style="display:inline-block;padding:10px 18px;border-radius:8px;background:#fff;color:${C.fg};font-weight:600;font-size:14px;text-decoration:none">Ver planos</a></div>`);
@@ -235,12 +302,14 @@ function buildEmail(cfg, name, report) {
 
   const lines = [`Oi, ${firstName(name)}. Relatório da varredura grátis do Sumiço para "${name}".`, ''];
   if (s.enabled) lines.push(`Páginas citando seu nome: ${s.total}`);
-  if (b.enabled) lines.push(`Vazamentos com seu e-mail: ${b.breaches.length}`);
+  if (bOk) lines.push(`Vazamentos com seu e-mail: ${b.breaches.length}`);
+  else if (b.unavailable) lines.push('Vazamentos: indisponíveis agora, tente uma nova varredura mais tarde.');
   for (const g of s.groups || []) {
     lines.push('', `${g.label} (${g.items.length}) - ${g.action}`);
     for (const it of g.items.slice(0, 12)) lines.push(`- ${it.title || it.host}: ${it.link}`);
   }
   for (const x of b.breaches || []) lines.push(`- Vazamento ${x.name} (${fmtDate(x.date)}): ${x.data.join(', ')}`);
+  if (bOk && b.source) lines.push(`Fonte dos vazamentos: ${b.source}`);
   lines.push('', `Planos: ${cfg.siteUrl}/#precos`);
 
   const n = (s.total || 0) + (b.breaches ? b.breaches.length : 0);
@@ -266,4 +335,4 @@ async function sendReport(cfg, to, name, report) {
   }
 }
 
-module.exports = { searchName, checkBreaches, sendReport, buildEmail, nameTokens, classify, matchesName, norm };
+module.exports = { searchName, checkBreaches, checkXposedOrNot, breachProvider, PROVIDERS, sendReport, buildEmail, nameTokens, classify, matchesName, norm };

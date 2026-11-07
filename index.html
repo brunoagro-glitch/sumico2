@@ -746,7 +746,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         <label class="lbl">Cidade <small>(opcional, ajuda a separar homônimos)</small>
           <input class="field" name="city" autocomplete="address-level2" placeholder="Curitiba" maxlength="60">
         </label>
-        <label class="consent"><input type="checkbox" name="consent"><span>Autorizo o Sumiço a buscar meu nome e e-mail em fontes públicas e a me enviar o relatório. Nada de CPF.</span></label>
+        <label class="consent"><input type="checkbox" name="consent"><span>Autorizo o Sumiço a buscar meu nome e e-mail em fontes públicas, consultar meu e-mail em bases públicas de vazamentos e me enviar o relatório. Nada de CPF.</span></label>
         <div class="ts-box" id="ts-box"></div>
         <p class="dlg-err" id="dlg-err" role="alert"></p>
         <button class="btn btn-primary" type="submit">Fazer minha varredura</button>
@@ -874,7 +874,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
     var s = data.search || {}, b = data.breaches || {}, h = '';
     var tiles = '';
     if (s.enabled && !s.error) tiles += tile(s.total, s.total === 1 ? 'página citando seu nome' : 'páginas citando seu nome', s.total ? 'warn' : 'ok');
-    if (b.enabled && !b.error) tiles += tile(b.breaches.length, b.breaches.length === 1 ? 'vazamento com seu e-mail' : 'vazamentos com seu e-mail', b.breaches.length ? 'bad' : 'ok');
+    if (b.enabled && !b.error && !b.unavailable) tiles += tile(b.breaches.length, b.breaches.length === 1 ? 'vazamento com seu e-mail' : 'vazamentos com seu e-mail', b.breaches.length ? 'bad' : 'ok');
     if (tiles) h += '<div class="res-tiles">' + tiles + '</div>';
 
     if (!s.enabled) h += '<p class="dlg-lede">A busca pelo nome ainda não está ativa neste ambiente.</p>';
@@ -894,7 +894,10 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
       b.breaches.slice(0, 5).forEach(function (x) {
         h += '<li>' + esc(x.name) + ' <small>' + esc(fmtDate(x.date)) + ' · ' + esc(x.data.slice(0, 5).join(', ')) + '</small>' + (x.password ? '<span class="pw">Sua senha vazou aqui</span>' : '') + '</li>';
       });
-      h += '</ul>' + (b.breaches.length > 5 ? '<p class="res-more">+ ' + (b.breaches.length - 5) + ' no relatório completo</p>' : '') + '</div>';
+      h += '</ul>' + (b.breaches.length > 5 ? '<p class="res-more">+ ' + (b.breaches.length - 5) + ' no relatório completo</p>' : '') +
+        (b.source ? '<p class="res-more">Fonte dos vazamentos: ' + esc(b.source) + '</p>' : '') + '</div>';
+    } else if (b.enabled && b.unavailable) {
+      h += '<p class="dlg-lede">Vazamentos indisponíveis agora. Peça uma nova varredura mais tarde para ver esta parte.</p>';
     } else if (b.enabled && b.error) {
       h += '<p class="dlg-lede">A consulta de vazamentos falhou desta vez.</p>';
     }
