@@ -30,4 +30,4 @@ Enquanto o domínio não for verificado no Resend, os e-mails só chegam no ende
 da conta do Resend.
 
 ## Limites
-5 varreduras por IP por hora e 3 por e-mail por dia (exige o Upstash conectado).
+10 varreduras por IP por hora e 3 por e-mail por dia (exige o Upstash conectado).

@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
     return send(res, 403, { error: 'captcha', message: 'Não conseguimos confirmar que você é humano. Recarregue a página e tente de novo.' });
   }
 
-  if (await overLimit(cfg, 'rl:scan:ip:' + sha(ip).slice(0, 24), 5, 3600)) {
+  if (await overLimit(cfg, 'rl:scan:ip2:' + sha(ip).slice(0, 24), 10, 3600)) {
     return send(res, 429, { error: 'rate', message: 'Muitas varreduras deste endereço. Tente de novo em uma hora.' });
   }
   if (await overLimit(cfg, 'rl:scan:email:' + sha(email).slice(0, 24), 3, 86400)) {
