@@ -20,7 +20,7 @@ function config() {
     redisUrl: env('KV_REST_API_URL') || env('UPSTASH_REDIS_REST_URL'),
     redisToken: env('KV_REST_API_TOKEN') || env('UPSTASH_REDIS_REST_TOKEN'),
     adminPassword: env('ADMIN_PASSWORD'),
-    siteUrl: (env('SITE_URL') || 'https://sumico-qrti.vercel.app').replace(/\/+$/, ''),
+    siteUrl: (env('SITE_URL') || 'https://www.xn--sumio-1ra.com.br').replace(/\/+$/, ''),
     turnstileSite: env('TURNSTILE_SITE_KEY') || TURNSTILE_TEST_SITE,
     turnstileSecret: env('TURNSTILE_SECRET_KEY') || TURNSTILE_TEST_SECRET,
   };

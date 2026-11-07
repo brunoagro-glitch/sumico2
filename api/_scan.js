@@ -2,6 +2,7 @@
 // (HIBP ou XposedOrNot) e o e-mail com o relatório (Resend).
 
 const { fetchJson, esc, sha, redis } = require('./_lib');
+const { domainToUnicode } = require('url');
 
 const STOP = new Set(['da', 'de', 'do', 'das', 'dos', 'e', 'di', 'du', 'del', 'la', 'van', 'von']);
 
@@ -296,7 +297,7 @@ function buildEmail(cfg, name, report) {
 
   parts.push(`<div style="margin:32px 0 8px;padding:20px;border-radius:12px;background:${C.fg};color:#fff"><b style="font-size:16px">Quer que a gente peça a remoção?</b><p style="margin:8px 0 16px;font-size:14px;color:#c9ceda">O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês. Você está na lista de espera com preço de fundador.</p><a href="${esc(cfg.siteUrl)}/#precos" style="display:inline-block;padding:10px 18px;border-radius:8px;background:#fff;color:${C.fg};font-weight:600;font-size:14px;text-decoration:none">Ver planos</a></div>`);
 
-  parts.push(`<p style="margin-top:24px;font-size:12px;color:${C.fg2}">Você recebeu este e-mail porque pediu uma varredura grátis em ${esc(cfg.siteUrl.replace(/^https?:\/\//, ''))}. Se não foi você, ignore. Para apagar seus dados, responda pedindo a exclusão.</p>`);
+  parts.push(`<p style="margin-top:24px;font-size:12px;color:${C.fg2}">Você recebeu este e-mail porque pediu uma varredura grátis em ${esc(domainToUnicode(cfg.siteUrl.replace(/^https?:\/\//, '')))}. Se não foi você, ignore. Para apagar seus dados, responda pedindo a exclusão.</p>`);
 
   const html = `<!doctype html><html lang="pt-BR"><body style="margin:0;background:${C.bg};font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:${C.fg}"><div style="max-width:600px;margin:0 auto;padding:32px 20px"><div style="font-weight:600;font-size:20px;margin-bottom:24px">Sumiço</div><div style="background:${C.card};border:1px solid ${C.line};border-radius:14px;padding:28px">${parts.join('')}</div></div></body></html>`;
 
