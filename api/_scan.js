@@ -60,32 +60,64 @@ function matchesName(item, tokens) {
   return text.includes(first) && (tokens.length === 1 || text.includes(last));
 }
 
-async function serperSearch(key, q) {
+async function serperSearch(key, payload) {
   const r = await fetchJson('https://google.serper.dev/search', {
     method: 'POST',
     headers: { 'X-API-KEY': key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ q, gl: 'br', hl: 'pt-br', num: 20 }),
+    body: JSON.stringify(payload),
   }, 8000);
   if (!r.ok) {
     const msg = (r.data && (r.data.message || r.data.error || r.data.raw)) || '';
-    throw new Error('Serper ' + r.status + (msg ? ': ' + String(msg).slice(0, 150) : ''));
+    const err = new Error('Serper ' + r.status + (msg ? ': ' + String(msg).slice(0, 150) : ''));
+    err.status = r.status;
+    throw err;
   }
   return (r.data && r.data.organic) || [];
 }
 
+// Formatos de consulta, do mais preciso ao mais simples. A conta grátis do Serper
+// recusa alguns padrões (erro 400); nesse caso descemos para o próximo formato.
+const MODES = [
+  { quotes: true, or: true, params: { gl: 'br', hl: 'pt-br', num: 10 } },
+  { quotes: true, or: false, params: { gl: 'br', hl: 'pt-br', num: 10 } },
+  { quotes: false, or: false, params: { gl: 'br', hl: 'pt-br', num: 10 } },
+  { quotes: false, or: false, params: {} },
+];
+
+function buildQueries(mode, name, city) {
+  const n = name.replace(/"/g, '');
+  const base = mode.quotes ? '"' + n + '"' : n;
+  const qs = [base, base + ' CPF', base + (mode.or ? ' telefone OR endereço' : ' telefone endereço')];
+  if (city) qs.push(base + ' ' + city);
+  return qs.map((q) => Object.assign({ q }, mode.params));
+}
+
 async function searchName(cfg, name, city) {
   if (!cfg.serper) return { enabled: false, total: 0, groups: [] };
-  const quoted = '"' + name.replace(/"/g, '') + '"';
-  const queries = [quoted, quoted + ' CPF', quoted + ' telefone OR endereço'];
-  if (city) queries.push(quoted + ' ' + city);
 
-  const settled = await Promise.allSettled(queries.map((q) => serperSearch(cfg.serper, q)));
-  const failed = settled.filter((s) => s.status === 'rejected').length;
-  if (failed === settled.length) {
-    const detail = String(settled[0].reason && settled[0].reason.message || settled[0].reason).slice(0, 200);
+  // Descobre o formato aceito com a primeira consulta e roda as demais nele.
+  let mode = -1, first = null, lastErr = null;
+  for (let i = 0; i < MODES.length; i++) {
+    try {
+      first = await serperSearch(cfg.serper, buildQueries(MODES[i], name, city)[0]);
+      mode = i;
+      break;
+    } catch (e) {
+      lastErr = e;
+      if (e.status !== 400) break;
+    }
+  }
+  if (mode < 0) {
+    const detail = String((lastErr && lastErr.message) || lastErr).slice(0, 200);
     console.error('busca falhou:', detail);
     return { enabled: true, error: true, errorDetail: detail, total: 0, groups: [] };
   }
+  if (mode > 0) console.warn('Serper aceitou só o formato', mode);
+
+  const rest = buildQueries(MODES[mode], name, city).slice(1);
+  const settled = [{ status: 'fulfilled', value: first }].concat(
+    await Promise.allSettled(rest.map((p) => serperSearch(cfg.serper, p)))
+  );
 
   const tokens = nameTokens(name);
   const seen = new Set();
@@ -109,7 +141,7 @@ async function searchName(cfg, name, city) {
   }
   const order = CATEGORIES.map((c) => c.id).concat(OTHER.id);
   const groups = order.filter((id) => byId[id]).map((id) => byId[id]);
-  return { enabled: true, total: items.length, groups };
+  return { enabled: true, mode, total: items.length, groups };
 }
 
 const DATA_PT = {
