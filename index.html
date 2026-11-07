@@ -264,6 +264,16 @@ section.block { padding-block: 104px }
 .plan.ent .quote { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 13px; color: var(--fg-2) }
 .plan.ent .quote svg { color: var(--fg-2); margin-top: 2px }
 .plan.ent .quote b { display: block; color: var(--fg); font-weight: 500; font-size: 14px }
+.term { display: flex; justify-content: center; margin: -16px 0 36px }
+.term-seg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface) }
+.term-seg button { position: relative; z-index: 1; min-width: 120px; height: 36px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--fg-2); font: 500 14px/1 var(--sans); cursor: pointer; transition: color .2s ease }
+.term-seg button[aria-checked="true"] { color: var(--fg) }
+.term-seg button small { margin-left: 6px; font: 500 11px/1 var(--mono); color: var(--ok) }
+.term-seg .thumb { position: absolute; z-index: 0; top: 4px; left: 4px; width: calc(50% - 4px); height: 36px; border-radius: 7px; background: var(--raised); box-shadow: inset 0 0 0 1px var(--line-strong); transition: transform .3s cubic-bezier(.32, .72, 0, 1) }
+.term-seg[data-v="2"] .thumb { transform: translateX(100%) }
+.swap { transition: opacity .2s ease, filter .2s ease }
+.swap.out { opacity: 0; filter: blur(2px) }
+@media (prefers-reduced-motion: reduce) { .term-seg .thumb, .swap { transition: none } }
 .founder { margin-top: 32px; text-align: center; color: var(--fg-2); font-size: 14px }
 .founder b { color: var(--fg); font-weight: 500 }
 
@@ -608,6 +618,13 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         <h2>Preço simples, sem letra miúda</h2>
         <p>A varredura inicial é grátis. Você só assina se quiser que a gente remova. Empresas têm um plano dedicado.</p>
       </div>
+      <div class="term">
+        <div class="term-seg" id="term" role="radiogroup" aria-label="Período do plano" data-v="1">
+          <span class="thumb" aria-hidden="true"></span>
+          <button type="button" role="radio" aria-checked="true" data-years="1">1 ano</button>
+          <button type="button" role="radio" aria-checked="false" data-years="2">2 anos<small>−15%</small></button>
+        </div>
+      </div>
       <div class="plans">
         <div class="plan">
           <h3>Varredura</h3>
@@ -632,13 +649,13 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
           <a class="btn btn-ghost" href="#lista">Entrar na lista</a>
         </div>
         <div class="plan featured">
-          <span class="tag">Economize 33%</span>
-          <h3>Anual</h3>
-          <div class="price"><b>R$199</b><span>/ano</span></div>
+          <span class="tag swap" id="term-tag">Economize 33%</span>
+          <h3 class="swap" id="term-title">Anual</h3>
+          <div class="price swap" id="term-price"><b>R$199</b><span>/ano</span></div>
           <ul>
             <li><svg class="ico"><use href="#i-check"/></svg>Tudo do plano mensal</li>
-            <li><svg class="ico"><use href="#i-check"/></svg>Equivale a R$16,58 por mês</li>
-            <li><svg class="ico"><use href="#i-check"/></svg>Cancele quando quiser</li>
+            <li><svg class="ico"><use href="#i-check"/></svg><span class="swap" id="term-month">Equivale a R$16,58 por mês</span></li>
+            <li><svg class="ico"><use href="#i-check"/></svg><span class="swap" id="term-note">Cancele quando quiser</span></li>
           </ul>
           <a class="btn btn-primary" href="#lista">Entrar na lista</a>
         </div>
@@ -1037,5 +1054,34 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
   }
   box.addEventListener('click', startWithSound);
   box.addEventListener('keydown', function (e) { if (!withSound && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); startWithSound(); } });
+})();
+</script>
+
+<script>
+/* Planos: 1 ano (R$199) ou 2 anos (2 × R$199 com 15% de desconto = R$338,30). */
+(function () {
+  var seg = document.getElementById('term');
+  if (!seg) return;
+  var YEAR = 199, DISCOUNT = 0.15;
+  var two = Math.round(YEAR * 2 * (1 - DISCOUNT) * 100) / 100;
+  var brl = function (v) { return 'R$' + (v % 1 ? v.toFixed(2) : String(v)).replace('.', ','); };
+  var T = {
+    1: { tag: 'Economize 33%', title: 'Anual', price: '<b>' + brl(YEAR) + '</b><span>/ano</span>', month: 'Equivale a ' + brl(Math.round(YEAR / 12 * 100) / 100) + ' por mês', note: 'Cancele quando quiser' },
+    2: { tag: '15% de desconto', title: '2 anos', price: '<b>' + brl(two) + '</b><span>/2 anos</span>', month: 'Equivale a ' + brl(Math.round(two / 24 * 100) / 100) + ' por mês', note: 'Em vez de ' + brl(YEAR * 2) + ' em dois anos' }
+  };
+  var ids = ['tag', 'title', 'price', 'month', 'note'];
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cur = 1;
+  function apply(y) { ids.forEach(function (k) { var el = document.getElementById('term-' + k); if (k === 'price') el.innerHTML = T[y][k]; else el.textContent = T[y][k]; }); }
+  function set(y, animate) {
+    cur = y; seg.dataset.v = String(y);
+    seg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-checked', String(Number(b.dataset.years) === y)); });
+    if (!animate || reduce) return apply(y);
+    var els = ids.map(function (k) { return document.getElementById('term-' + k); });
+    els.forEach(function (el) { el.classList.add('out'); });
+    setTimeout(function () { apply(cur); els.forEach(function (el) { el.classList.remove('out'); }); }, 140);
+  }
+  seg.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b && Number(b.dataset.years) !== cur) set(Number(b.dataset.years), true); });
+  seg.addEventListener('keydown', function (e) { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); var y = cur === 1 ? 2 : 1; set(y, true); seg.querySelector('[data-years="' + y + '"]').focus(); } });
 })();
 </script>
