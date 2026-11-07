@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /index2
+
+Sitemap: https://sumico-qrti.vercel.app/sitemap.xml
