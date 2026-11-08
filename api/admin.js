@@ -46,23 +46,36 @@ module.exports = async (req, res) => {
   }
 
   if (!cfg.redisUrl || !cfg.redisToken) {
-    return send(res, 200, { ok: true, db: false, scans: [], leads: 0, costs: Object.assign(costRefs(cfg), { scansMonth: 0 }) });
+    return send(res, 200, { ok: true, db: false, scans: [], leads: 0, waitlist: [], waitTotal: 0, costs: Object.assign(costRefs(cfg), { scansMonth: 0 }) });
   }
 
   try {
-    const [ids, leadCount, scanCount, monthCount] = await redis(cfg, [
+    const [ids, leadCount, scanCount, monthCount, wlEmails, wlCount] = await redis(cfg, [
       ['ZRANGE', 'scans', '0', '299', 'REV'],
       ['ZCARD', 'leads'],
       ['ZCARD', 'scans'],
       ['ZCOUNT', 'scans', String(monthStartBR()), '+inf'],
+      ['ZRANGE', 'waitlist', '0', '499', 'REV'],
+      ['ZCARD', 'waitlist'],
     ]);
+    // Lista de espera dos planos (nome, e-mail, uso pessoal ou empresa, plano clicado)
+    let waitlist = [];
+    if (wlEmails && wlEmails.length) {
+      const rows = await redis(cfg, wlEmails.map((e) => ['HGETALL', 'wl:' + e]));
+      waitlist = (rows || []).map((arr) => {
+        const o = {};
+        if (Array.isArray(arr)) for (let i = 0; i + 1 < arr.length; i += 2) o[arr[i]] = arr[i + 1];
+        else if (arr && typeof arr === 'object') Object.assign(o, arr);
+        return o;
+      }).filter((o) => o.email);
+    }
     let scans = [];
     if (ids && ids.length) {
       const [vals] = await redis(cfg, [['MGET', ...ids.map((id) => 'scan:' + id)]]);
       scans = (vals || []).filter(Boolean).map((v) => { try { return JSON.parse(v); } catch { return null; } }).filter(Boolean);
     }
     const costs = Object.assign(costRefs(cfg), { scansMonth: Number(monthCount) || 0 });
-    return send(res, 200, { ok: true, db: true, leads: Number(leadCount) || 0, total: Number(scanCount) || 0, scans, costs });
+    return send(res, 200, { ok: true, db: true, leads: Number(leadCount) || 0, total: Number(scanCount) || 0, scans, waitlist, waitTotal: Number(wlCount) || 0, costs });
   } catch (e) {
     return send(res, 502, { error: 'db', message: 'Não foi possível ler o banco: ' + e.message });
   }

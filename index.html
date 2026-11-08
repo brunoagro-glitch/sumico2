@@ -466,6 +466,20 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 .dlg-form .btn-primary[disabled] { opacity: .6; cursor: progress }
 .dlg-err { font-size: 13px; color: #ef6b6f; min-height: 18px }
 .dlg-fine { font-size: 12px; color: var(--fg-3) }
+.wl-eyebrow { color: #f2c230 }
+.wl-use { margin: 0; padding: 0; border: 0; display: grid; gap: 8px }
+.wl-use legend { margin-bottom: 6px; padding: 0; font-size: 13px; color: var(--fg-2) }
+.wl-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); cursor: pointer; transition: border-color .15s var(--ease), background-color .15s var(--ease) }
+.wl-opt:hover { border-color: rgba(61, 139, 255, .45) }
+.wl-opt:has(input:checked) { border-color: var(--accent); background: rgba(61, 139, 255, .10) }
+.wl-opt input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex: none }
+.wl-opt span { display: grid; gap: 2px }
+.wl-opt b { font-weight: 500; color: var(--fg); font-size: 15px }
+.wl-opt small { color: var(--fg-3); font-size: 12px }
+.wl-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0 }
+.wl-ok-actions { margin-top: 24px; display: grid; gap: 10px }
+.wl-ok-actions .btn { width: 100%; height: 48px; justify-content: center }
+.wl-ok-actions .btn-primary { background: var(--accent); color: #fff }
 .run { margin-top: 24px; display: grid; gap: 10px; list-style: none; padding: 0 }
 .run li { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; font-size: 14px; color: var(--fg-3); transition: color .2s var(--ease), border-color .2s var(--ease) }
 .run li i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line-strong); flex: none }
@@ -958,7 +972,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
             <li><svg class="ico"><use href="#i-check"/></svg>Relatório do que existe sobre você</li>
             <li><svg class="ico"><use href="#i-check"/></svg>Sem cartão de crédito</li>
           </ul>
-          <a class="btn btn-ghost" href="#lista">Entrar na lista</a>
+          <a class="btn btn-ghost" href="#lista" data-scan>Quero a varredura grátis</a>
         </div>
         <div class="plan">
           <h3>Mensal</h3>
@@ -971,7 +985,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
             <li><svg class="ico"><use href="#i-check"/></svg>Painel com status de cada item</li>
             <li><svg class="ico"><use href="#i-check"/></svg>Cancele quando quiser</li>
           </ul>
-          <a class="btn btn-ghost" href="#lista">Entrar na lista</a>
+          <a class="btn btn-ghost" href="#lista" data-wl="mensal">Entrar na lista</a>
         </div>
         <div class="plan featured">
           <span class="tag swap" id="term-tag">Economize 33%</span>
@@ -983,7 +997,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
             <li><svg class="ico"><use href="#i-check"/></svg>Todas as novas funções, sem aumento de preço</li>
             <li><svg class="ico"><use href="#i-check"/></svg><span class="swap" id="term-note">Cancele quando quiser</span></li>
           </ul>
-          <a class="btn btn-primary" href="#lista">Entrar na lista</a>
+          <a class="btn btn-primary" href="#lista" data-wl="anual">Entrar na lista</a>
         </div>
         <div class="plan ent">
           <span class="tag">Para empresas</span>
@@ -996,7 +1010,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
             <li><svg class="ico"><use href="#i-check"/></svg>Painel e relatórios por titular</li>
             <li><svg class="ico"><use href="#i-check"/></svg>Atendimento prioritário dedicado</li>
           </ul>
-          <a class="btn btn-ghost" href="#lista">Falar com a gente</a>
+          <a class="btn btn-ghost" href="#lista" data-wl="empresas" data-use="empresa">Falar com a gente</a>
         </div>
       </div>
 
@@ -1058,13 +1072,13 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
       <div class="cta" id="lista">
         <div>
           <h2>Desapareça de onde você nunca quis aparecer</h2>
-          <p>Entre na lista e seja dos primeiros a receber a varredura grátis.</p>
+          <p>Entre na lista de espera e garanta o preço de fundador no lançamento.</p>
         </div>
-        <form class="waitlist" novalidate>
+        <form class="waitlist" data-to="wl" novalidate>
           <div class="form-row">
             <label for="email" class="sr">Seu e-mail</label>
             <input class="field" id="email" name="email" type="email" autocomplete="email" placeholder="seu@email.com" required>
-            <button class="btn btn-primary" type="submit">Quero sumir</button>
+            <button class="btn btn-primary" type="submit">Entrar na lista de espera</button>
           </div>
           <p class="form-note" aria-live="polite">Nada de CPF agora. Sem spam. Tratamos os seus dados como se fossem nossos.</p>
         </form>
@@ -1153,6 +1167,44 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
   </div>
 </dialog>
 
+<dialog class="scan-dlg wl-dlg" id="wl-dlg" aria-labelledby="wl-title">
+  <button class="dlg-x" type="button" data-close aria-label="Fechar"><svg class="ico" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <div class="dlg-body">
+    <div data-wstep="form">
+      <p class="dlg-eyebrow wl-eyebrow">Condição pré-Black Friday</p>
+      <h2 id="wl-title">Entre na lista de espera</h2>
+      <p class="dlg-lede">Deixe seu nome e e-mail. Avisamos no lançamento e você garante o preço de fundador.</p>
+      <form class="dlg-form" id="wl-form" novalidate>
+        <label class="lbl">Nome
+          <input class="field" name="name" autocomplete="name" placeholder="Maria Souza" maxlength="90" required>
+        </label>
+        <label class="lbl">E-mail
+          <input class="field" name="email" type="email" autocomplete="email" placeholder="seu@email.com" maxlength="254" required>
+        </label>
+        <fieldset class="wl-use">
+          <legend>Vai usar o Sumiço para</legend>
+          <label class="wl-opt"><input type="radio" name="use" value="pessoal"><span><b>Meus dados pessoais</b><small>Nome, CPF, telefone e e-mail</small></span></label>
+          <label class="wl-opt"><input type="radio" name="use" value="empresa"><span><b>Dados da empresa</b><small>Clientes, ex-funcionários e executivos</small></span></label>
+        </fieldset>
+        <input class="wl-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label class="consent"><input type="checkbox" name="consent"><span>Autorizo o Sumiço a guardar meu nome e e-mail para avisar sobre o lançamento. Para apagar, é só pedir.</span></label>
+        <p class="dlg-err" id="wl-err" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Entrar na lista</button>
+      </form>
+    </div>
+    <div data-wstep="ok" hidden>
+      <p class="dlg-eyebrow wl-eyebrow">Pronto</p>
+      <h2>Você está na lista</h2>
+      <p class="dlg-lede" id="wl-ok-text">Guardamos seu contato. Avisamos por e-mail no lançamento, com o preço de fundador garantido.</p>
+      <div class="wl-ok-actions">
+        <a class="btn btn-primary" href="#lista" data-scan-from-wl>Fazer a varredura grátis agora</a>
+        <button class="btn btn-ghost" type="button" data-close>Fechar</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+
 <script>
 /* Varredura grátis: os formulários "Quero sumir" abrem o pop-up, que chama /api/scan
    (busca do nome, vazamentos do e-mail, relatório por e-mail) e mostra o resultado aqui. */
@@ -1212,7 +1264,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
     if (e.target.closest('[data-again]')) { resetTurnstile(); step('form'); }
   });
 
-  document.querySelectorAll('form.waitlist').forEach(function (wf) {
+  document.querySelectorAll('form.waitlist:not([data-to="wl"])').forEach(function (wf) {
     var input = wf.querySelector('input[type=email]');
     var note = wf.querySelector('.form-note');
     if (saved) { note.textContent = 'Você já está na lista com ' + saved + '. Faça sua varredura grátis.'; note.className = 'form-note ok'; }
@@ -1345,6 +1397,62 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         }, wait);
       })
       .catch(function () { finish(); submitBtn.disabled = false; resetTurnstile(); step('form'); errEl.textContent = 'Sem conexão com o servidor. Confira sua internet e tente de novo.'; });
+  });
+})();
+</script>
+<script>
+/* Lista de espera dos planos (Mensal, Anual, Empresas): pop-up curto com nome, e-mail e uso.
+   Grava em /api/waitlist, separado dos leads da varredura. */
+(function () {
+  var dlg = document.getElementById('wl-dlg'); if (!dlg) return;
+  var form = document.getElementById('wl-form'), err = document.getElementById('wl-err');
+  var btn = form.querySelector('button[type=submit]');
+  var RE = /^[^\s@<>"']{1,64}@[^\s@<>"']{1,190}\.[a-z]{2,}$/i;
+  var plan = 'outro';
+  function step(n) { dlg.querySelectorAll('[data-wstep]').forEach(function (el) { el.hidden = el.getAttribute('data-wstep') !== n; }); }
+  function open(p, use, email) {
+    plan = p || 'outro'; err.textContent = ''; step('form');
+    if (email) form.email.value = email;
+    if (use) { var r = form.querySelector('input[name=use][value="' + use + '"]'); if (r) r.checked = true; }
+    if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+    setTimeout(function () { (form.name.value ? form.email : form.name).focus(); }, 30);
+  }
+  function close() { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+  document.querySelectorAll('form.waitlist[data-to="wl"]').forEach(function (wf) {
+    wf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = wf.querySelector('input[type=email]').value.trim(), note = wf.querySelector('.form-note');
+      if (v && !RE.test(v)) { note.textContent = 'Confira o e-mail. Ele precisa ter o formato nome@dominio.com.'; note.className = 'form-note err'; return; }
+      note.textContent = 'Nada de CPF agora. Sem spam. Tratamos os seus dados como se fossem nossos.'; note.className = 'form-note';
+      open('outro', '', v);
+    });
+  });
+  document.querySelectorAll('[data-wl]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); open(a.getAttribute('data-wl'), a.getAttribute('data-use')); });
+  });
+  dlg.addEventListener('click', function (e) {
+    if (e.target === dlg || e.target.closest('[data-close]')) return close();
+    var go = e.target.closest('[data-scan-from-wl]');
+    if (go) { e.preventDefault(); close(); var sb = document.querySelector('[data-scan]'); if (sb) sb.click(); }
+  });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = form.elements.namedItem('name').value.trim(), email = form.email.value.trim();
+    var use = (form.querySelector('input[name=use]:checked') || {}).value || '';
+    if (name.length < 2) { err.textContent = 'Escreva seu nome.'; return form.elements.namedItem('name').focus(); }
+    if (!RE.test(email)) { err.textContent = 'Confira o e-mail. Ele precisa ter o formato nome@dominio.com.'; return form.email.focus(); }
+    if (!use) { err.textContent = 'Escolha se vai usar o Sumiço para dados pessoais ou da empresa.'; return; }
+    if (!form.consent.checked) { err.textContent = 'Marque a autorização para guardarmos seu contato.'; return; }
+    err.textContent = ''; btn.disabled = true; btn.textContent = 'Enviando…';
+    fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, email: email, use: use, plan: plan, consent: true, website: form.website.value }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.d.ok) { err.textContent = (res.d && res.d.message) || 'Não conseguimos salvar agora. Tente de novo.'; return; }
+        document.getElementById('wl-ok-text').textContent = 'Guardamos o contato de ' + email + '. Avisamos por e-mail no lançamento' + (use === 'empresa' ? ', e alguém do Sumiço fala com você sobre o plano para empresas.' : ', com o preço de fundador garantido.');
+        step('ok');
+      })
+      .catch(function () { err.textContent = 'Sem conexão. Tente de novo.'; })
+      .then(function () { btn.disabled = false; btn.textContent = 'Entrar na lista'; });
   });
 })();
 </script>

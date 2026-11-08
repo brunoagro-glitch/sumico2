@@ -56,6 +56,11 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
 .ref td { font-family: var(--mono); color: var(--fg-2) }
 .ref tr.now td { color: var(--fg) }
 .ref-wrap { overflow-x: auto }
+.wl { margin-top: 32px }
+#app > .wl-head { margin-top: 8px }
+.wl-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px }
+.wl-head h2 { margin: 0; font-size: 15px; font-weight: 600; flex: 1 }
+.wl-head h2 span { color: var(--fg-3); font: 400 13px var(--mono) }
 @media (max-width: 560px) { header { flex-wrap: wrap } input.search { width: 100%; max-width: none; order: 5 } }
 </style>
 </head>
@@ -81,10 +86,18 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
   <div class="status" id="status"></div>
   <div class="kpis" id="kpis"></div>
   <section class="costs" id="costs" hidden></section>
+  <div class="wl-head"><h2>Pediram a varredura grátis <span id="sc-n"></span></h2></div>
   <div class="tbl"><table>
     <thead><tr><th>Quando</th><th>Nome</th><th>E-mail</th><th>Cidade</th><th>Páginas</th><th>Vazamentos</th><th>E-mail enviado</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
+  <section class="wl">
+    <div class="wl-head"><h2>Só entraram na lista de espera (condição pré-Black Friday) <span id="wl-n"></span></h2><button class="btn" id="wl-csv" type="button">Exportar lista</button></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Quando</th><th>Nome</th><th>E-mail</th><th>Uso</th><th>Plano clicado</th><th>Condição</th></tr></thead>
+      <tbody id="wl-rows"></tbody>
+    </table></div>
+  </section>
 </div>
 
 <script>
@@ -152,11 +165,14 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
     var sent = (data.scans || []).filter(function (s) { return s.mail === 'enviado'; }).length;
     var withHits = (data.scans || []).filter(function (s) { return s.found > 0; }).length;
     $('kpis').innerHTML =
-      '<div class="kpi"><b>' + (data.leads || 0) + '</b><span>leads (e-mails únicos)</span></div>' +
+      '<div class="kpi"><b>' + (data.leads || 0) + '</b><span>leads da varredura (e-mails únicos)</span></div>' +
       '<div class="kpi"><b>' + (data.total || 0) + '</b><span>varreduras feitas</span></div>' +
       '<div class="kpi"><b>' + withHits + '</b><span>com páginas encontradas</span></div>' +
-      '<div class="kpi"><b>' + sent + '</b><span>relatórios enviados</span></div>';
+      '<div class="kpi"><b>' + sent + '</b><span>relatórios enviados</span></div>' +
+      '<div class="kpi"><b>' + (data.waitTotal || 0) + '</b><span>só na lista de espera (pré-Black Friday)</span></div>';
     renderCosts();
+    renderWaitlist(q);
+    $('sc-n').textContent = data.total ? '(' + data.total + ')' : '';
     if (!data.db) { $('rows').innerHTML = '<tr><td colspan="7" class="empty">O banco (Upstash) não está conectado ao projeto. As varreduras funcionam, mas não ficam salvas.</td></tr>'; return; }
     if (!scans.length) { $('rows').innerHTML = '<tr><td colspan="7" class="empty">' + (q ? 'Nada com esse filtro.' : 'Nenhuma varredura ainda.') + '</td></tr>'; return; }
     $('rows').innerHTML = scans.map(function (s) {
@@ -169,6 +185,30 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
         '<td>' + mailTag(s.mail) + (s.mailDetail ? '<small>' + esc(s.mailDetail) + '</small>' : '') +
         (s.mailId ? '<button class="linkbtn" type="button" data-mail="' + esc(s.mailId) + '">ver entrega</button>' : '') + '</td></tr>';
     }).join('');
+  }
+
+  var USE = { pessoal: 'Dados pessoais', empresa: 'Dados da empresa' };
+  var PLAN = { mensal: 'Mensal', anual: 'Anual', empresas: 'Empresas', outro: '—' };
+  function renderWaitlist(q) {
+    var list = (data.waitlist || []).filter(function (w) { return !q || ((w.name || '') + ' ' + w.email).toLowerCase().indexOf(q) > -1; });
+    $('wl-n').textContent = data.waitTotal ? '(' + data.waitTotal + ')' : '';
+    if (!data.db) { $('wl-rows').innerHTML = '<tr><td colspan="6" class="empty">Banco não conectado.</td></tr>'; return; }
+    if (!list.length) { $('wl-rows').innerHTML = '<tr><td colspan="6" class="empty">' + (q ? 'Nada com esse filtro.' : 'Ninguém entrou na lista pelos planos ainda.') + '</td></tr>'; return; }
+    $('wl-rows').innerHTML = list.map(function (w) {
+      var d = new Date(w.at);
+      return '<tr><td>' + esc(d.toLocaleDateString('pt-BR')) + '<small>' + esc(d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })) + '</small></td>' +
+        '<td>' + esc(w.name) + '</td><td>' + esc(w.email) + '</td>' +
+        '<td><span class="tag ' + (w.use === 'empresa' ? 'warn' : 'ok') + '">' + esc(USE[w.use] || w.use || '—') + '</span></td>' +
+        '<td>' + esc(PLAN[w.plan] || w.plan || '—') + '</td>' +
+        '<td>' + (w.promo === 'pre-bf' ? '<span class="tag ok">pré-Black Friday</span>' : '—') + '</td></tr>';
+    }).join('');
+  }
+  function wlCsv() {
+    var rows = [['data', 'nome', 'email', 'uso', 'plano', 'condicao']].concat((data.waitlist || []).map(function (w) { return [w.at, w.name, w.email, w.use, w.plan, w.promo || '']; }));
+    var text = rows.map(function (r) { return r.map(function (v) { v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + text], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'sumico-lista-de-espera.csv'; a.click();
   }
 
   function status() {
@@ -191,6 +231,7 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
   $('login-form').addEventListener('submit', function (e) { e.preventDefault(); pw = $('pw').value; $('login-err').textContent = ''; load(); });
   $('reload').addEventListener('click', load);
   $('csv').addEventListener('click', function () { if (data) csv(); });
+  $('wl-csv').addEventListener('click', function () { if (data) wlCsv(); });
   $('logout').addEventListener('click', function () { pw = ''; try { sessionStorage.removeItem(KEY); } catch (e) {} showLogin(''); });
   $('q').addEventListener('input', function () { if (data) render(); });
   var EV = { delivered: ['entregue', 'ok'], opened: ['aberto', 'ok'], clicked: ['clicado', 'ok'], sent: ['enviado, aguardando entrega', 'warn'], queued: ['na fila', 'warn'], scheduled: ['agendado', 'warn'], delivery_delayed: ['entrega atrasada', 'warn'], bounced: ['devolvido pelo provedor', 'bad'], complained: ['marcado como spam', 'bad'], canceled: ['cancelado', 'bad'], failed: ['falhou', 'bad'] };
