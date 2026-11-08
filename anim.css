@@ -1,0 +1,126 @@
+/* Sumiço · camada de movimento (versão de teste em /animado)
+   Tudo aqui só liga quando o visitante não pediu menos movimento e o anim.js marcou <html class="anim">. */
+
+/* ---------- Fantasminha ---------- */
+.ghost { position: fixed; z-index: 60; right: max(20px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom)); width: 64px; height: 76px; padding: 0; border: 0; background: none; cursor: pointer; color: inherit; -webkit-tap-highlight-color: transparent }
+.ghost svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 18px rgba(64, 142, 154, .35)) }
+.ghost .g-body { fill: #eef6f7 }
+.ghost .g-shade { fill: #cfe3e6 }
+.ghost .g-eye { fill: #093341 }
+.ghost .g-cheek { fill: #f2a7a0; opacity: .55 }
+.ghost-tip { position: absolute; right: 74px; bottom: 30px; padding: 9px 13px; border-radius: 12px 12px 4px 12px; background: #eef6f7; color: #093341; font: 600 13px/1.25 var(--sans); white-space: nowrap; box-shadow: 0 12px 30px rgba(0, 0, 0, .35); opacity: 0; transform: translateX(8px) scale(.96); transform-origin: right bottom; transition: opacity .25s ease, transform .35s cubic-bezier(.2, .9, .3, 1.3); pointer-events: none }
+.ghost:hover .ghost-tip, .ghost:focus-visible .ghost-tip, .ghost.talk .ghost-tip { opacity: 1; transform: none }
+.ghost-shadow { position: absolute; left: 50%; bottom: -8px; width: 40px; height: 8px; margin-left: -20px; border-radius: 50%; background: rgba(64, 142, 154, .35); filter: blur(4px) }
+@media (max-width: 1400px) { .ghost { width: 52px; height: 62px; right: 12px } .ghost-tip { right: 60px; bottom: 24px } }
+@media (max-width: 560px) { .ghost { width: 50px; height: 60px; bottom: max(16px, env(safe-area-inset-bottom)); right: 14px } .ghost-tip { right: 58px; bottom: 22px; font-size: 12px } }
+
+/* barra de progresso de leitura */
+.scroll-bar { position: fixed; z-index: 70; left: 0; top: 0; height: 3px; width: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, #408e9a, #8fd6df 60%, #ffffff); pointer-events: none }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* fantasminha flutuando, com o corpo ondulando e piscando os olhos */
+  .anim .ghost svg { animation: g-float 3.6s ease-in-out infinite }
+  .anim .ghost .g-hem { animation: g-wave 1.8s ease-in-out infinite; transform-origin: 50% 100% }
+  .anim .ghost .g-eyes { animation: g-blink 5s infinite; transform-origin: 50% 50% }
+  .anim .ghost .ghost-shadow { animation: g-shadow 3.6s ease-in-out infinite }
+  .anim .ghost.fade svg { opacity: .18; transition: opacity .9s ease }
+  .anim .ghost svg { transition: opacity .9s ease }
+  @keyframes g-float { 0%, 100% { transform: translateY(0) rotate(-3deg) } 50% { transform: translateY(-10px) rotate(3deg) } }
+  @keyframes g-wave { 0%, 100% { transform: scaleY(1) } 50% { transform: scaleY(.9) } }
+  @keyframes g-blink { 0%, 94%, 100% { transform: scaleY(1) } 96% { transform: scaleY(.1) } }
+  @keyframes g-shadow { 0%, 100% { transform: scaleX(1); opacity: .9 } 50% { transform: scaleX(.75); opacity: .5 } }
+
+  /* ---------- Entrada dos elementos conforme o scroll ---------- */
+  .anim .rv { opacity: 0; transform: translateY(32px) scale(.985); filter: blur(6px); transition: opacity .9s cubic-bezier(.2, .7, .2, 1), transform 1s cubic-bezier(.2, .7, .2, 1), filter .9s ease; transition-delay: var(--d, 0s) }
+  .anim .rv.in { opacity: 1; transform: none; filter: none }
+  .anim .rv-left { transform: translateX(-36px) }
+  .anim .rv-right { transform: translateX(36px) }
+
+
+  /* título do topo: cada linha sobe de trás de uma máscara */
+  .anim .hero h1 .ln { display: block; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em }
+  .anim .hero h1 .ln > i { display: inline-block; font-style: normal; transform: translateY(105%); animation: ln-up 1.1s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: var(--d, 0s) }
+  @keyframes ln-up { to { transform: none } }
+  .anim .hero h1 span.shine { background: linear-gradient(100deg, #8e9099 0%, #8e9099 40%, #eef6f7 50%, #8e9099 60%, #8e9099 100%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 6s ease-in-out 1.6s infinite }
+  @keyframes shine { 0% { background-position: 100% 0 } 45%, 100% { background-position: 0 0 } }
+
+  /* fundo do topo acompanhando o mouse */
+  .anim .hero-bg { transition: transform .6s cubic-bezier(.2, .7, .2, 1); transform: translate3d(var(--bx, 0), var(--by, 0), 0) scale(1.06) }
+
+  /* ---------- Relatório do topo: inclina e dobra a ponta ---------- */
+  .anim .hero-grid { perspective: 1400px }
+  .anim .scan { transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0); transition: transform .5s cubic-bezier(.2, .7, .2, 1), box-shadow .5s ease; will-change: transform }
+  .anim .scan.live { transition: transform .12s linear, box-shadow .5s ease }
+  .anim .scan:hover { box-shadow: 0 50px 90px rgba(0, 0, 0, .55), 0 0 0 1px rgba(143, 214, 223, .25) }
+  .scan .glare { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; background: radial-gradient(520px circle at var(--gx, 50%) var(--gy, 50%), rgba(190, 235, 241, .16), transparent 45%); transition: opacity .4s ease; border-radius: inherit }
+  .anim .scan:hover .glare { opacity: 1 }
+  .scan .curl { position: absolute; z-index: 4; right: 0; bottom: 0; width: 0; height: 0; pointer-events: none; background: linear-gradient(to top left, var(--bg) 50%, #a9c6cb 50%, #dcebed 78%, #f3f9fa 100%); border-top-left-radius: 6px; box-shadow: -6px -6px 14px rgba(0, 0, 0, .35); transition: width .55s cubic-bezier(.2, .9, .3, 1.2), height .55s cubic-bezier(.2, .9, .3, 1.2) }
+  .anim .scan:hover .curl { width: 64px; height: 64px }
+  .anim .scan .meter i { width: 0; transition: width 1.6s cubic-bezier(.2, .7, .2, 1) .6s }
+  .anim .scan.in .meter i { width: 66% }
+  .anim .scan .occ li { opacity: 0; transform: translateX(-10px); transition: opacity .6s ease, transform .6s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(.9s + var(--i) * .14s) }
+  .anim .scan.in .occ li { opacity: 1; transform: none }
+  .anim .scan .stamp { transition: transform .5s cubic-bezier(.2, .9, .3, 1.4) }
+  .anim .scan:hover .stamp { transform: rotate(8deg) scale(1.08) }
+
+  /* ---------- Vídeo: abre como cinema conforme chega na tela ---------- */
+  .anim .player { transform: scale(var(--ps, 1)); border-radius: var(--pr, 20px); transition: box-shadow .4s ease; will-change: transform }
+
+  /* ---------- Manchetes ---------- */
+  .anim .clip .paper { transition: transform .5s cubic-bezier(.2, .8, .2, 1.2), box-shadow .5s ease }
+  .anim .clip:hover .paper { transform: rotate(0deg) scale(1.05); box-shadow: 0 2px 0 rgba(255, 255, 255, .08), 0 40px 70px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .5) }
+  .anim .clip { position: relative; transition: z-index 0s .5s }
+  .anim .clip:hover { z-index: 5; transition-delay: 0s }
+  .anim .clip-side { transform: translate3d(0, var(--py, 0), 0); will-change: transform }
+
+  /* ---------- Cartões: sobem, brilham e acendem uma luz que segue o mouse ---------- */
+  .anim .glow { position: relative; isolation: isolate; transition: transform .35s cubic-bezier(.2, .8, .2, 1), border-color .35s ease, box-shadow .35s ease }
+  .anim .glow > .spot { position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s ease; background: radial-gradient(360px circle at var(--sx, 50%) var(--sy, 50%), rgba(143, 214, 223, .14), transparent 60%) }
+  .anim .glow:hover { transform: translateY(-4px) }
+  .anim .glow:hover > .spot { opacity: 1 }
+  .anim .glow-flat:hover { transform: none }
+  .anim .step.glow:hover, .anim .plan.glow:hover, .anim .feat.glow:hover { border-color: rgba(143, 214, 223, .55); box-shadow: 0 24px 50px rgba(0, 0, 0, .4), 0 0 0 1px rgba(143, 214, 223, .12) }
+  .anim .stat { transition: background-color .35s ease }
+  .anim .stat:hover { background: rgba(143, 214, 223, .05) }
+  .anim .stat b { display: inline-block; transition: transform .35s cubic-bezier(.2, .8, .2, 1.3), color .35s ease }
+  .anim .stat:hover b { transform: scale(1.06); color: #8fd6df }
+
+  /* setas entre os passos andando */
+  .anim .steps.in .step:not(:last-child)::after { animation: nudge 1.6s ease-in-out infinite }
+  @keyframes nudge { 0%, 100% { transform: translateX(0) } 50% { transform: translateX(5px) } }
+  @media (max-width: 560px) { @keyframes nudge { 0%, 100% { transform: rotate(90deg) translateX(0) } 50% { transform: rotate(90deg) translateX(5px) } } }
+
+  /* tabela: linha acende ao passar o mouse */
+  .anim .cmp tbody tr { transition: background-color .25s ease }
+  .anim .cmp tbody tr:hover th, .anim .cmp tbody tr:hover td { background-color: rgba(64, 142, 154, .14) }
+  .anim .cmp .mk { transition: transform .3s cubic-bezier(.2, .9, .3, 1.5) }
+  .anim .cmp tbody tr:hover .mk { transform: scale(1.25) }
+
+  /* perguntas: deslizam e acendem */
+  .anim .faq summary { transition: color .25s ease, padding-left .3s cubic-bezier(.2, .8, .2, 1) }
+  .anim .faq summary:hover { padding-left: 12px; color: #8fd6df }
+
+  /* ---------- Botões vivos: brilho que atravessa + ímã ---------- */
+  .anim .btn, .anim .pill-field button, .anim .wh-btn { position: relative; overflow: hidden; transform: translate3d(var(--mx, 0), var(--my, 0), 0); transition: transform .25s cubic-bezier(.2, .8, .2, 1), background-color .2s ease, box-shadow .3s ease, border-color .2s ease }
+  .anim .btn::after, .anim .pill-field button::after { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .45), transparent); transform: skewX(-20deg) translateX(0); opacity: 0 }
+  .anim .btn:hover::after, .anim .pill-field button:hover::after { animation: sweep .9s ease forwards }
+  @keyframes sweep { 0% { left: -60%; opacity: 1 } 100% { left: 130%; opacity: 1 } }
+  .anim .btn-primary:hover, .anim .pill-field button:hover { box-shadow: 0 10px 30px rgba(61, 139, 255, .35) }
+  .anim .btn:active, .anim .pill-field button:active { transform: translate3d(var(--mx, 0), var(--my, 0), 0) scale(.96) }
+  /* botão do cabeçalho respira de leve, chamando para a lista */
+  .anim header .btn-primary { animation: breathe 3.2s ease-in-out infinite }
+  @keyframes breathe { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0) } 50% { box-shadow: 0 0 0 5px rgba(255, 255, 255, .09) } }
+
+  /* cronômetro: segundos pulsam */
+  .anim .bf-timer span:last-child b { animation: tick 1s ease-in-out infinite }
+  @keyframes tick { 0%, 100% { transform: none } 15% { transform: scale(1.08) } }
+  .anim .bf-timer span { transition: transform .3s cubic-bezier(.2, .9, .3, 1.4), border-color .3s ease }
+  .anim .bf-timer span:hover { transform: translateY(-3px); border-color: rgba(242, 194, 48, .6) }
+
+  /* logo do cabeçalho some e volta ao passar o mouse */
+  .anim .logo img { transition: opacity .4s ease, transform .5s cubic-bezier(.2, .9, .3, 1.3) }
+  .anim .logo:hover img { opacity: .25; transform: translateY(-3px) scale(.9) }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .anim .hero h1 .ln { color: var(--fg); white-space: normal }
+}
