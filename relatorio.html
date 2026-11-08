@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Sumiço · Seu relatório</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="favicon-180.png">
+<style>
+:root { color-scheme: dark; --bg: #08090d; --surface: #0d0f15; --raised: #1a1d26; --line: rgba(238,240,245,.10); --line-strong: rgba(238,240,245,.18); --fg: #eef0f5; --fg-2: #a3a9b8; --fg-3: #7a8296; --accent: #3d8bff; --accent-ink: #8fbaff; --ok: #4cc38a; --warn: #e0a64b; --bad: #ef6b6f; --mono: ui-monospace, "SFMono-Regular", Menlo, monospace }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif }
+.wrap { max-width: 760px; margin: 0 auto; padding: 28px 16px 72px }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 36px }
+.brand { color: var(--fg); text-decoration: none; font-weight: 600; font-size: 20px; display: flex; align-items: center; gap: 10px }
+.brand img { width: 28px; height: 28px }
+.when { font: 12px var(--mono); color: var(--fg-3) }
+h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spacing: -.02em; font-weight: 600 }
+.lede { margin: 10px 0 0; color: var(--fg-2) }
+.tiles { margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px }
+.tile { padding: 16px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface) }
+.tile b { display: block; font: 500 32px/1 var(--mono); letter-spacing: -.03em }
+.tile span { display: block; margin-top: 6px; font-size: 13px; color: var(--fg-2) }
+.tile.warn b { color: var(--warn) } .tile.bad b { color: var(--bad) } .tile.ok b { color: var(--ok) }
+.group { margin-top: 32px }
+.group.first { padding: 16px; border: 1px solid rgba(239,107,111,.35); border-radius: 12px; background: rgba(239,107,111,.05) }
+.group h2 { margin: 0; font-size: 17px; font-weight: 500; display: flex; justify-content: space-between; gap: 12px }
+.group h2 span { font: 400 13px var(--mono); color: var(--fg-3) }
+.group > p { margin: 2px 0 0; font-size: 13px; color: var(--fg-3) }
+.group ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px }
+.group li { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; overflow-wrap: anywhere; background: var(--surface) }
+.group li a { color: var(--fg); text-decoration: none }
+.group li a:hover { color: var(--accent-ink); text-decoration: underline }
+.group li small { display: block; margin-top: 2px; font: 12px var(--mono); color: var(--fg-3) }
+.group li .snip { display: block; margin-top: 6px; font-size: 13px; color: var(--fg-2) }
+.group li .pw { display: block; margin-top: 4px; color: var(--bad); font-size: 13px }
+.note { margin-top: 20px; padding: 14px 16px; border-radius: 12px; font-size: 14px; background: var(--surface); border: 1px solid var(--line); color: var(--fg-2) }
+.note.warn { background: rgba(224,166,75,.12); border-color: transparent; color: #f0d3a3 }
+.cta { margin-top: 40px; padding: 24px; border-radius: 14px; background: var(--raised); border: 1px solid var(--line-strong) }
+.cta h2 { margin: 0; font-size: 19px; font-weight: 600 }
+.cta p { margin: 8px 0 18px; color: var(--fg-2); font-size: 14px }
+.btn { display: inline-flex; align-items: center; height: 42px; padding: 0 18px; border-radius: 8px; background: #f2f3f6; color: #0b0d14; font-weight: 600; font-size: 14px; text-decoration: none }
+.foot { margin-top: 28px; font-size: 12px; color: var(--fg-3) }
+.state { margin: 18vh auto 0; max-width: 440px; text-align: center }
+.state p { color: var(--fg-2) }
+.state .btn { margin-top: 12px }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="brand" href="/"><img src="symbol-96.png" alt="">Sumiço</a>
+    <span class="when" id="when"></span>
+  </div>
+  <main id="app"><p class="lede">Carregando seu relatório…</p></main>
+</div>
+<script>
+(function () {
+  var app = document.getElementById('app');
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function safeUrl(u) { return /^https?:\/\//i.test(String(u || '')) ? u : '#'; }
+  function fmtDate(d) { var m = /^(\d{4})-(\d{2})/.exec(d || ''); if (!m) return d || ''; return ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+m[2] - 1] + ' ' + m[1]; }
+  function tile(n, label, cls) { return '<div class="tile ' + cls + '"><b>' + n + '</b><span>' + label + '</span></div>'; }
+  function state(title, text) {
+    app.innerHTML = '<div class="state"><h1>' + esc(title) + '</h1><p>' + esc(text) + '</p><a class="btn" href="/">Fazer uma nova varredura</a></div>';
+  }
+
+  var t = new URLSearchParams(location.search).get('t') || '';
+  // Tira o token da barra de endereço (histórico, capturas de tela).
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  if (!/^[A-Za-z0-9_-]{24}$/.test(t)) return state('Link inválido', 'Este link de relatório não está completo. Abra de novo pelo botão no e-mail.');
+
+  fetch('/api/report?t=' + encodeURIComponent(t), { headers: { Accept: 'application/json' } })
+    .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(function (x) {
+      if (x.status === 404) return state('Relatório expirado', 'Guardamos cada relatório por 30 dias. Faça uma nova varredura grátis para ver o resultado atualizado.');
+      if (x.status !== 200 || !x.d || !x.d.ok) return state('Não conseguimos abrir', (x.d && x.d.message) || 'Tente de novo em alguns minutos.');
+      render(x.d);
+    })
+    .catch(function () { state('Não conseguimos abrir', 'Verifique a conexão e recarregue a página.'); });
+
+  function render(d) {
+    var s = d.search || {}, b = d.breaches || {}, h = '';
+    var bOk = b.enabled && !b.error && !b.unavailable;
+    var n = (s.total || 0) + (bOk ? b.breaches.length : 0);
+    var first = String(d.name || '').trim().split(/\s+/)[0] || '';
+    if (d.at) { var dt = new Date(d.at); if (!isNaN(dt)) document.getElementById('when').textContent = 'Varredura de ' + dt.toLocaleDateString('pt-BR'); }
+
+    h += '<h1>' + (n ? 'Encontramos ' + n + (n === 1 ? ' item' : ' itens') + ' sobre você' : 'Sua varredura está pronta') + '</h1>';
+    h += '<p class="lede">Relatório completo da varredura grátis para <b>' + esc(d.name) + '</b>'+ '.</p>';
+
+    var tiles = '';
+    if (bOk) tiles += tile(b.breaches.length, b.breaches.length === 1 ? 'vazamento com seu e-mail' : 'vazamentos com seu e-mail', b.breaches.length ? 'bad' : 'ok');
+    if (s.enabled && !s.error) tiles += tile(s.total, s.total === 1 ? 'página citando seu nome' : 'páginas citando seu nome', s.total ? 'warn' : 'ok');
+    if (tiles) h += '<div class="tiles">' + tiles + '</div>';
+
+    if (bOk && b.breaches.length) {
+      var br = b.breaches.slice().sort(function (x, y) { return (y.password ? 1 : 0) - (x.password ? 1 : 0) || String(y.date || '').localeCompare(String(x.date || '')); });
+      h += '<section class="group first"><h2>Vazamentos com seu e-mail<span>' + br.length + '</span></h2><p>Troque as senhas desses serviços e ative a verificação em duas etapas</p><ul>';
+      br.forEach(function (x) {
+        h += '<li>' + esc(x.name) + '<small>' + esc(fmtDate(x.date)) + ' · ' + esc((x.data || []).join(', ')) + '</small>' + (x.password ? '<span class="pw">Sua senha vazou aqui. Troque-a em todo lugar onde usa a mesma.</span>' : '') + '</li>';
+      });
+      h += '</ul>' + (b.source ? '<p style="margin-top:8px">Fonte dos vazamentos: ' + esc(b.source) + '</p>' : '') + '</section>';
+    } else if (bOk) {
+      h += '<div class="note">Seu e-mail não aparece nas bases de vazamentos conhecidas. Bom sinal.</div>';
+    } else if (b.enabled && b.unavailable) {
+      h += '<div class="note warn">A consulta de vazamentos estava indisponível nesta varredura. Faça uma nova mais tarde para ver esta parte.</div>';
+    } else if (b.enabled && b.error) {
+      h += '<div class="note warn">A consulta de vazamentos falhou nesta varredura.</div>';
+    }
+
+    if (s.error) h += '<div class="note warn">A busca pelo nome falhou nesta varredura. Faça uma nova em alguns minutos.</div>';
+    else if (s.enabled && s.total === 0) h += '<div class="note">Não achamos páginas abertas com seu nome completo. Bom sinal, mas sites de consulta também vendem dados que não aparecem no Google.</div>';
+
+    (s.groups || []).forEach(function (g) {
+      h += '<section class="group"><h2>' + esc(g.label) + '<span>' + g.items.length + '</span></h2><p>' + esc(g.action) + '</p><ul>';
+      g.items.forEach(function (it) {
+        h += '<li><a href="' + esc(safeUrl(it.link)) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(it.title || it.host) + '</a><small>' + esc(it.host) + '</small>' + (it.snippet ? '<span class="snip">' + esc(it.snippet) + '</span>' : '') + '</li>';
+      });
+      h += '</ul></section>';
+    });
+
+    h += '<div class="cta"><h2>Quer que a gente peça a remoção?</h2><p>O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês. Você está na lista de espera com preço de fundador.</p><a class="btn" href="/#precos">Ver planos</a></div>';
+    h += '<p class="foot">Este link é só seu e vale por 30 dias a partir da varredura. Para apagar seus dados, responda ao e-mail do relatório pedindo a exclusão.</p>';
+    app.innerHTML = h;
+  }
+})();
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const { config, send, clientIp, sha, redis, overLimit, verifyTurnstile } = require('./_lib');
 const { searchName, checkBreaches, sendReport } = require('./_scan');
 
+const REPORT_TTL = 30 * 24 * 3600;
 const EMAIL_RE = /^[^\s@<>"']{1,64}@[^\s@<>"']{1,190}\.[a-z]{2,}$/i;
 
 function clean(s, max) {
@@ -44,10 +45,24 @@ module.exports = async (req, res) => {
 
   const [search, breaches] = await Promise.all([searchName(cfg, name, city), checkBreaches(cfg, email)]);
   const report = { search, breaches };
-  const mail = await sendReport(cfg, email, name, report);
 
   const now = Date.now();
   const id = now.toString(36) + '-' + crypto.randomBytes(4).toString('hex');
+
+  // Relatório completo fica no nosso domínio, atrás de um link secreto que vale 30 dias.
+  // O e-mail leva só o resumo e esse link.
+  let reportUrl = '';
+  const token = crypto.randomBytes(18).toString('base64url');
+  try {
+    const saved = await redis(cfg, [
+      ['SET', 'report:' + token, JSON.stringify({ name, at: new Date(now).toISOString(), search, breaches }), 'EX', String(REPORT_TTL)],
+    ]);
+    if (saved) reportUrl = cfg.siteUrl + '/relatorio?t=' + token;
+  } catch (e) {
+    console.error('redis report store failed', e.message);
+  }
+
+  const mail = await sendReport(cfg, email, name, report, reportUrl);
   const record = {
     id, at: new Date(now).toISOString(), name, email, city,
     found: search.total || 0,
@@ -55,7 +70,7 @@ module.exports = async (req, res) => {
     breaches: breaches.enabled && !breaches.error && !breaches.unavailable ? breaches.breaches.length : null,
     breachSource: breaches.provider || '', breachUnavailable: !!breaches.unavailable,
     searchError: !!search.error, searchDetail: search.errorDetail || '', breachError: !!breaches.error,
-    mail: mail.sent ? 'enviado' : (mail.reason || 'erro'), mailDetail: mail.detail || '', mailId: mail.id || '', mailFrom: cfg.resendFrom,
+    mail: mail.sent ? 'enviado' : (mail.reason || 'erro'), mailDetail: mail.detail || '', mailId: mail.id || '', mailFrom: cfg.resendFrom, report: reportUrl ? token : '',
   };
   let stored = false;
   try {

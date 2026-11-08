@@ -252,75 +252,59 @@ function fmtDate(d) {
   return months[Number(m[2]) - 1] + ' ' + m[1];
 }
 
-function buildEmail(cfg, name, report) {
+// E-mail curto de propósito: só o resumo e UM link para o relatório no nosso domínio.
+// Dezenas de links para sites de terceiros (Serasa, Escavador, LinkedIn...) fazem o
+// Outlook/Hotmail tratar a mensagem como phishing e descartá-la em silêncio.
+function buildEmail(cfg, name, report, reportUrl) {
   const s = report.search, b = report.breaches;
   const bOk = b.enabled && !b.error && !b.unavailable;
-  const fn = esc(firstName(name));
-  const C = { bg: '#f4f5f7', card: '#ffffff', fg: '#0b0d14', fg2: '#4b5262', line: '#e3e6ec', accent: '#1f63e0', warn: '#a86a10', bad: '#c2393d' };
+  const fn = firstName(name);
+  const C = { bg: '#f4f5f7', card: '#ffffff', fg: '#0b0d14', fg2: '#4b5262', line: '#e3e6ec', bad: '#c2393d' };
+  const site = domainToUnicode(cfg.siteUrl.replace(/^https?:\/\//, '').replace(/^www\./, ''));
+  const pw = bOk ? b.breaches.filter((x) => x.password).length : 0;
+
+  // Linhas do resumo: [número, rótulo]
+  const rows = [];
+  if (bOk) rows.push([b.breaches.length, b.breaches.length === 1 ? 'Vazamento com o seu e-mail' : 'Vazamentos com o seu e-mail']);
+  for (const g of s.groups || []) rows.push([g.items.length, g.label]);
+
+  const notes = [];
+  if (pw) notes.push(pw === 1 ? 'Sua senha aparece em 1 vazamento. Troque-a onde usar a mesma.' : `Sua senha aparece em ${pw} vazamentos. Troque-a onde usar a mesma.`);
+  if (s.error) notes.push('A busca pelo nome falhou desta vez. Faça uma nova varredura mais tarde.');
+  if (b.unavailable) notes.push('A consulta de vazamentos estava indisponível. Faça uma nova varredura mais tarde.');
+  if (s.enabled && !s.error && s.total === 0) notes.push('Não achamos páginas abertas com o seu nome completo. Bom sinal.');
+  if (bOk && b.breaches.length === 0) notes.push('Seu e-mail não aparece nas bases de vazamentos conhecidas.');
+
   const parts = [];
-
-  parts.push(`<p style="margin:0 0 16px;font-size:16px;line-height:1.6">Oi, ${fn}. Aqui está o que encontramos sobre <b>${esc(name)}</b> na internet aberta${b.enabled ? ' e em bases de vazamentos' : ''}.</p>`);
-
-  const tiles = [];
-  if (s.enabled) tiles.push([s.total, 'páginas citando seu nome']);
-  if (bOk) tiles.push([b.breaches.length, b.breaches.length === 1 ? 'vazamento com seu e-mail' : 'vazamentos com seu e-mail']);
-  if (tiles.length) {
-    parts.push('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 24px"><tr>' +
-      tiles.map(([n, l]) => `<td style="padding:16px;border:1px solid ${C.line};border-radius:10px;background:${C.card}"><div style="font:600 28px/1 Menlo,monospace;color:${C.fg}">${n}</div><div style="margin-top:6px;font-size:13px;color:${C.fg2}">${l}</div></td>`).join('<td width="12"></td>') +
-      '</tr></table>');
+  parts.push(`<p style="margin:0 0 20px;font-size:16px;line-height:1.6">Oi, ${esc(fn)}. Sua varredura grátis terminou. Este é o resumo do que encontramos sobre <b>${esc(name)}</b>:</p>`);
+  if (rows.length) {
+    parts.push('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 20px">' +
+      rows.map(([n, l]) => `<tr><td style="padding:10px 0;border-top:1px solid ${C.line};font-size:14px;color:${C.fg}">${esc(l)}</td><td align="right" style="padding:10px 0;border-top:1px solid ${C.line};font:600 16px Menlo,monospace;color:${C.fg}">${n}</td></tr>`).join('') +
+      '</table>');
   }
-
-  if (s.enabled && s.total === 0 && !s.error) {
-    parts.push(`<p style="font-size:14px;color:${C.fg2}">Não encontramos páginas citando seu nome completo nas buscas desta varredura. Isso é bom, mas não quer dizer que seus dados não estejam em bases fechadas.</p>`);
+  for (const t of notes) parts.push(`<p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:${t.startsWith('Sua senha') ? C.bad : C.fg2}">${esc(t)}</p>`);
+  if (reportUrl) {
+    parts.push(`<p style="margin:24px 0 8px"><a href="${esc(reportUrl)}" style="display:inline-block;padding:12px 20px;border-radius:8px;background:${C.fg};color:#ffffff;font-weight:600;font-size:15px;text-decoration:none">Ver relatório completo</a></p>`);
+    parts.push(`<p style="margin:0;font-size:12px;color:${C.fg2}">O relatório mostra cada página e vazamento, com o que fazer em cada caso. O link vale por 30 dias e é só seu: não o encaminhe.</p>`);
   }
-  if (s.error) parts.push(`<p style="font-size:14px;color:${C.warn}">A busca pelo nome falhou desta vez. Tente a varredura de novo mais tarde.</p>`);
+  parts.push(`<p style="margin:28px 0 0;font-size:12px;line-height:1.5;color:${C.fg2}">Você recebeu este e-mail porque pediu uma varredura grátis em ${esc(site)}. Se não foi você, ignore. Para apagar seus dados, responda pedindo a exclusão.</p>`);
 
-  if (b.enabled) {
-    parts.push(`<h3 style="margin:28px 0 8px;font-size:16px;color:${C.fg}">Vazamentos com o seu e-mail</h3>`);
-    if (b.unavailable) parts.push(`<p style="font-size:14px;color:${C.warn}">Vazamentos indisponíveis agora: a base de consulta atingiu o limite de acessos. Peça uma nova varredura mais tarde para ver esta parte.</p>`);
-    else if (b.error) parts.push(`<p style="font-size:14px;color:${C.warn}">A consulta de vazamentos falhou desta vez.</p>`);
-    else if (b.breaches.length === 0) parts.push(`<p style="font-size:14px;color:${C.fg2}">Seu e-mail não aparece nas bases de vazamentos conhecidas. Ótimo sinal.</p>`);
-    for (const x of b.breaches.slice(0, 15)) {
-      parts.push(`<div style="padding:10px 0;border-top:1px solid ${C.line}"><b style="font-size:14px;color:${C.fg}">${esc(x.name)}</b> <span style="font-size:12px;color:${C.fg2}">${esc(fmtDate(x.date))}</span><div style="font-size:13px;color:${C.fg2};margin-top:4px">Dados expostos: ${esc(x.data.join(', '))}</div>${x.password ? `<div style="font-size:13px;color:${C.bad};margin-top:4px">Sua senha vazou aqui. Troque-a em todo lugar onde usa a mesma.</div>` : ''}</div>`);
-    }
-    if (b.breaches.length > 15) parts.push(`<p style="font-size:12px;color:${C.fg2}">E mais ${b.breaches.length - 15} vazamentos.</p>`);
-    if (b.source) parts.push(`<p style="margin-top:12px;font-size:12px;color:${C.fg2}">Fonte dos vazamentos: ${esc(b.source)}</p>`);
-  }
+  const html = `<!doctype html><html lang="pt-BR"><body style="margin:0;background:${C.bg};font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:${C.fg}"><div style="max-width:560px;margin:0 auto;padding:32px 20px"><div style="font-weight:600;font-size:20px;margin-bottom:24px">Sumiço</div><div style="background:${C.card};border:1px solid ${C.line};border-radius:14px;padding:28px">${parts.join('')}</div></div></body></html>`;
 
-  for (const g of s.groups || []) {
-    parts.push(`<h3 style="margin:28px 0 4px;font-size:16px;color:${C.fg}">${esc(g.label)} <span style="color:${C.fg2};font-weight:400">· ${g.items.length}</span></h3><p style="margin:0 0 10px;font-size:12px;color:${C.fg2}">${esc(g.action)}</p>`);
-    for (const it of g.items.slice(0, 12)) {
-      parts.push(`<div style="padding:10px 0;border-top:1px solid ${C.line}"><a href="${esc(it.link)}" style="color:${C.accent};font-size:14px;text-decoration:none">${esc(it.title || it.host)}</a><div style="font:12px Menlo,monospace;color:${C.fg2};margin-top:2px">${esc(it.host)}</div>${it.snippet ? `<div style="font-size:13px;color:${C.fg2};margin-top:4px">${esc(it.snippet)}</div>` : ''}</div>`);
-    }
-    if (g.items.length > 12) parts.push(`<p style="font-size:12px;color:${C.fg2}">E mais ${g.items.length - 12} nesta categoria.</p>`);
-  }
+  const lines = [`Oi, ${fn}. Sua varredura grátis terminou. Resumo do que encontramos sobre "${name}":`, ''];
+  for (const [n, l] of rows) lines.push(`- ${l}: ${n}`);
+  if (notes.length) lines.push('', ...notes);
+  if (reportUrl) lines.push('', 'Relatório completo (vale por 30 dias, não encaminhe):', reportUrl);
+  lines.push('', `Você recebeu este e-mail porque pediu uma varredura grátis em ${site}. Se não foi você, ignore.`);
 
-  parts.push(`<div style="margin:32px 0 8px;padding:20px;border-radius:12px;background:${C.fg};color:#fff"><b style="font-size:16px">Quer que a gente peça a remoção?</b><p style="margin:8px 0 16px;font-size:14px;color:#c9ceda">O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês. Você está na lista de espera com preço de fundador.</p><a href="${esc(cfg.siteUrl)}/#precos" style="display:inline-block;padding:10px 18px;border-radius:8px;background:#fff;color:${C.fg};font-weight:600;font-size:14px;text-decoration:none">Ver planos</a></div>`);
-
-  parts.push(`<p style="margin-top:24px;font-size:12px;color:${C.fg2}">Você recebeu este e-mail porque pediu uma varredura grátis em ${esc(domainToUnicode(cfg.siteUrl.replace(/^https?:\/\//, '')))}. Se não foi você, ignore. Para apagar seus dados, responda pedindo a exclusão.</p>`);
-
-  const html = `<!doctype html><html lang="pt-BR"><body style="margin:0;background:${C.bg};font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:${C.fg}"><div style="max-width:600px;margin:0 auto;padding:32px 20px"><div style="font-weight:600;font-size:20px;margin-bottom:24px">Sumiço</div><div style="background:${C.card};border:1px solid ${C.line};border-radius:14px;padding:28px">${parts.join('')}</div></div></body></html>`;
-
-  const lines = [`Oi, ${firstName(name)}. Relatório da varredura grátis do Sumiço para "${name}".`, ''];
-  if (s.enabled) lines.push(`Páginas citando seu nome: ${s.total}`);
-  if (bOk) lines.push(`Vazamentos com seu e-mail: ${b.breaches.length}`);
-  else if (b.unavailable) lines.push('Vazamentos: indisponíveis agora, tente uma nova varredura mais tarde.');
-  for (const x of b.breaches || []) lines.push(`- Vazamento ${x.name} (${fmtDate(x.date)}): ${x.data.join(', ')}`);
-  for (const g of s.groups || []) {
-    lines.push('', `${g.label} (${g.items.length}) - ${g.action}`);
-    for (const it of g.items.slice(0, 12)) lines.push(`- ${it.title || it.host}: ${it.link}`);
-  }
-  if (bOk && b.source) lines.push(`Fonte dos vazamentos: ${b.source}`);
-  lines.push('', `Planos: ${cfg.siteUrl}/#precos`);
-
-  const n = (s.total || 0) + (b.breaches ? b.breaches.length : 0);
-  const subject = n > 0 ? `${firstName(name)}, encontramos ${n} ${n === 1 ? 'item' : 'itens'} sobre você` : `${firstName(name)}, sua varredura grátis está pronta`;
+  const n = (s.total || 0) + (bOk ? b.breaches.length : 0);
+  const subject = n > 0 ? `${fn}, encontramos ${n} ${n === 1 ? 'item' : 'itens'} sobre você` : `${fn}, sua varredura grátis está pronta`;
   return { subject, html, text: lines.join('\n') };
 }
 
-async function sendReport(cfg, to, name, report) {
+async function sendReport(cfg, to, name, report, reportUrl) {
   if (!cfg.resend) return { sent: false, reason: 'not_configured' };
-  const mail = buildEmail(cfg, name, report);
+  const mail = buildEmail(cfg, name, report, reportUrl);
   try {
     const r = await fetchJson('https://api.resend.com/emails', {
       method: 'POST',
