@@ -373,7 +373,10 @@ section.block { padding-block: 104px }
 .bf { position: relative; display: grid; place-items: center; min-height: 230px; margin: 8px 0 40px }
 .bf-tapes { position: absolute; inset: 0; left: 50%; width: 100vw; transform: translateX(-50%); pointer-events: none }
 .tape { position: absolute; left: -10vw; width: 120vw; top: 50%; height: 34px; margin-top: -17px; display: flex; align-items: center; overflow: hidden; background: #f2c230; border-block: 2px solid #111; box-shadow: 0 6px 18px rgba(0, 0, 0, .35) }
-.tape span { flex: none; white-space: nowrap; padding-left: 12px; font: 700 13px/1 var(--mono); letter-spacing: .14em; color: #111 }
+.tape span { flex: none; white-space: nowrap; padding-left: 12px; font: 700 13px/1 var(--mono); letter-spacing: .14em; color: #111; display: inline-flex; align-items: center }
+.tape .tsep { font-style: normal; margin: 0 14px }
+.tape .tlogo { height: 18px; width: auto; margin: 0 14px; flex: none }
+.bf-ends { margin-top: 2px; font: 500 12px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3) }
 .tape.t1 { transform: rotate(-4deg) }
 .tape.t2 { transform: rotate(3deg); background: #e9b41f; opacity: .92 }
 .bf-box { position: relative; z-index: 1; display: grid; justify-items: center; gap: 10px; max-width: 520px; padding: 22px 28px 24px; border-radius: 16px; border: 1px solid rgba(242, 194, 48, .55); background: #0d0e12; box-shadow: 0 0 0 6px rgba(13, 14, 18, .85), 0 24px 50px rgba(0, 0, 0, .5); text-align: center }
@@ -925,12 +928,13 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
       </div>
       <div class="bf" id="bf">
         <div class="bf-tapes" aria-hidden="true">
-          <div class="tape t1"><span>PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR</span></div>
-          <div class="tape t2"><span>PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR</span></div>
+          <div class="tape t1"><span>PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18"></span></div>
+          <div class="tape t2"><span>PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18"></span></div>
         </div>
         <div class="bf-box">
           <p class="bf-title">Condição pré-Black Friday</p>
           <p class="bf-sub">Entre na lista até <b>27/11, às 23:59</b>, e garanta o preço de fundador no lançamento.</p>
+          <p class="bf-ends">Essa oferta se encerra em</p>
           <div class="bf-timer" role="timer" aria-live="off" aria-label="Tempo restante">
             <span><b data-u="d">--</b><i>dias</i></span>
             <span><b data-u="h">--</b><i>horas</i></span>
