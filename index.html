@@ -1000,7 +1000,6 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         </div>
       </div>
 
-      <p class="founder">Quem entrar na lista até 27/11 garante <b>preço de fundador</b> no lançamento.</p>
     </div>
   </section>
 
@@ -1351,7 +1350,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 </script>
 <script>
 /* Cronômetro da condição pré-Black Friday: até 27/11/2026 às 23:59 (horário de Brasília).
-   Depois do prazo, o bloco some e a frase de fundador volta ao texto geral. */
+   Depois do prazo, o bloco some. */
 (function () {
   var box = document.getElementById('bf'); if (!box) return;
   var END = Date.parse('2026-11-27T23:59:59-03:00');
@@ -1361,7 +1360,6 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
     var left = END - Date.now();
     if (left <= 0) {
       box.remove();
-      var f = document.querySelector('.founder'); if (f) f.innerHTML = 'Quem entrar na lista agora garante <b>preço de fundador</b> no lançamento.';
       clearInterval(t); return;
     }
     var sec = Math.floor(left / 1000);
