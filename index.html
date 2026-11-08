@@ -218,9 +218,27 @@ p { margin: 0 }
 .wh-hint { margin-top: 10px; font: 400 13px/1.4 var(--mono); color: var(--fg-3) }
 .source-row { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 32px; color: var(--fg); font-size: 15px; font-weight: 500; letter-spacing: -.01em }
 .wh { position: relative }
-.wh-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 22px; border: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; cursor: default; transition: border-color .15s var(--ease), background-color .15s var(--ease) }
-.wh-btn svg { color: var(--fg-2) }
-.wh:hover .wh-btn, .wh-btn:focus-visible, .wh.open .wh-btn { border-color: var(--line-strong); background: var(--raised) }
+.wh:nth-child(1) { --c: 242, 137, 74 }
+.wh:nth-child(2) { --c: 230, 178, 79 }
+.wh:nth-child(3) { --c: 91, 155, 255 }
+.wh:nth-child(4) { --c: 79, 179, 192 }
+.wh:nth-child(5) { --c: 239, 84, 84 }
+.wh:nth-child(6) { --c: 92, 201, 138 }
+.wh-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 22px; border: 1px solid rgba(var(--c), .55); background: rgba(var(--c), .14); color: var(--fg); font: inherit; cursor: pointer; transition: border-color .15s var(--ease), background-color .15s var(--ease), transform .15s var(--ease), box-shadow .15s var(--ease) }
+.wh-btn svg { color: rgb(var(--c)) }
+.wh:hover .wh-btn, .wh-btn:focus-visible, .wh.open .wh-btn { border-color: rgb(var(--c)); background: rgba(var(--c), .26); box-shadow: 0 0 0 4px rgba(var(--c), .14), 0 8px 24px rgba(var(--c), .18); transform: translateY(-2px) }
+.wh-btn:active { transform: translateY(0) scale(.98) }
+.wh-pop li::before { background: rgb(var(--c)) !important }
+.wh-pop { border-color: rgba(var(--c), .5) !important }
+@media (prefers-reduced-motion: no-preference) {
+  /* um brilho passa de balão em balão, convidando o mouse; para quando alguém abre um */
+  .wh-btn { animation: whcall 7.2s ease-in-out infinite }
+  .wh:nth-child(2) .wh-btn { animation-delay: 1.2s } .wh:nth-child(3) .wh-btn { animation-delay: 2.4s }
+  .wh:nth-child(4) .wh-btn { animation-delay: 3.6s } .wh:nth-child(5) .wh-btn { animation-delay: 4.8s }
+  .wh:nth-child(6) .wh-btn { animation-delay: 6s }
+  .source-row:hover .wh-btn, .source-row.used .wh-btn { animation: none }
+  @keyframes whcall { 0%, 14%, 100% { box-shadow: 0 0 0 0 rgba(var(--c), 0) } 5% { box-shadow: 0 0 0 6px rgba(var(--c), .28); background: rgba(var(--c), .28) } }
+}
 .wh-pop { position: absolute; z-index: 30; bottom: calc(100% + 10px); left: 50%; width: 290px; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--line-strong); background: #12141b; box-shadow: 0 18px 40px rgba(0, 0, 0, .5); text-align: left; font-size: 14px; font-weight: 400; letter-spacing: 0; opacity: 0; visibility: hidden; transform: translate(-50%, 6px); transition: opacity .16s var(--ease), transform .16s var(--ease), visibility 0s linear .16s; pointer-events: none }
 .wh:hover .wh-pop, .wh-btn:focus-visible + .wh-pop, .wh.open .wh-pop { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition-delay: 0s; pointer-events: auto }
 .wh:first-child .wh-pop { left: 0; transform: translate(0, 6px) }
@@ -1277,7 +1295,8 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
   function close(except) { srcs.forEach(function (s) { if (s !== except) { s.classList.remove('open'); s.querySelector('.wh-btn').setAttribute('aria-expanded', 'false'); } }); }
   srcs.forEach(function (s) {
     var b = s.querySelector('.wh-btn');
-    b.addEventListener('click', function (e) { e.stopPropagation(); var on = !s.classList.contains('open'); close(s); s.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on)); });
+    s.addEventListener('mouseenter', function () { s.parentNode.classList.add('used'); });
+    b.addEventListener('click', function (e) { e.stopPropagation(); s.parentNode.classList.add('used'); var on = !s.classList.contains('open'); close(s); s.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on)); });
   });
   document.addEventListener('click', function () { close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
