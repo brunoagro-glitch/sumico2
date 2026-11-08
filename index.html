@@ -456,11 +456,6 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
 .price-row th, .price-row td { padding-block: 14px 16px; border-top: 1px solid var(--rule) }
 .price-row b { font: 600 17px/1.2 var(--mono); color: var(--ink) }
-.cmp-offer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 22px; background: #eef0f4; border-top: 1px solid var(--rule) }
-.cmp-offer p { color: var(--ink-2); font-size: 15px; max-width: 560px }
-.cmp-offer b { color: var(--ink); font-weight: 600 }
-.cmp-btn { flex: none; background: var(--accent-deep); color: #fff; border-color: transparent }
-.cmp-btn:hover { background: #1a56c4 }
 .cmp-hint { display: none; padding: 10px 14px 0; font-size: 12px; color: var(--ink-3) }
 .cmp-note { margin-top: 14px; font-size: 12px; color: var(--fg-3); max-width: 760px }
 .tip { position: relative; font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: help;
@@ -477,8 +472,6 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
   .cmp thead th { font-size: 14px }
   .cmp thead th.us { font-size: 15px }
   .cmp-hint { display: block }
-  .cmp-offer { flex-direction: column; align-items: stretch }
-  .cmp-btn { width: 100% }
 }
 @media (prefers-reduced-motion: reduce) { .tip [role="tooltip"] { transition: none } }
 </style>
@@ -684,10 +677,6 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
             </tr>
             </tbody>
           </table>
-        </div>
-        <div class="cmp-offer">
-          <p><b>Pelo preço de um alerta, você tira seus dados da internet.</b> E no plano anual o Sumiço sai mais barato que o Serasa Premium.</p>
-          <a class="btn cmp-btn" href="#lista" data-scan>Quero a varredura grátis</a>
         </div>
       </div>
       <p class="cmp-note">Informações dos sites oficiais de cada serviço, consultadas em 8 nov 2026. Serasa Premium: plano pessoa física. Modo Fantasma: plano RECON. Incogni: plano Standard mensal. Valores em dólar convertidos a R$5,48 (5 nov 2026).</p>
