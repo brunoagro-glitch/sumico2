@@ -38,6 +38,8 @@ td.num { font-family: var(--mono); text-align: right }
 td small { display: block; color: var(--fg-3); font-size: 12px }
 .tag { font: 12px var(--mono); padding: 2px 6px; border-radius: 6px }
 .tag.ok { color: var(--ok); background: rgba(76,195,138,.12) } .tag.warn { color: var(--warn); background: rgba(224,166,75,.12) } .tag.bad { color: var(--bad); background: rgba(239,107,111,.12) }
+.linkbtn { display: block; margin-top: 4px; padding: 0; border: 0; background: none; color: var(--accent); font: 12px var(--mono); cursor: pointer }
+.linkbtn:hover { text-decoration: underline }
 .empty { padding: 32px; text-align: center; color: var(--fg-3) }
 input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg); font: inherit; width: 220px; max-width: 40vw }
 .costs { margin-bottom: 24px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); padding: 18px 18px 14px }
@@ -164,7 +166,8 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
         '<td class="num">' + (s.searchError ? '<span class="tag bad">falhou</span>' + (s.searchDetail ? '<small>' + esc(s.searchDetail) + '</small>' : '') : s.found) + '</td>' +
         '<td class="num">' + (s.breachError ? '<span class="tag bad">falhou</span>' : s.breachUnavailable ? '<span class="tag warn">limite</span>' : (s.breaches == null ? '—' : s.breaches)) +
           (s.breachSource ? '<small>' + (s.breachSource === 'xon' ? 'XposedOrNot' : 'HIBP') + '</small>' : '') + '</td>' +
-        '<td>' + mailTag(s.mail) + (s.mailDetail ? '<small>' + esc(s.mailDetail) + '</small>' : '') + '</td></tr>';
+        '<td>' + mailTag(s.mail) + (s.mailDetail ? '<small>' + esc(s.mailDetail) + '</small>' : '') +
+        (s.mailId ? '<button class="linkbtn" type="button" data-mail="' + esc(s.mailId) + '">ver entrega</button>' : '') + '</td></tr>';
     }).join('');
   }
 
@@ -190,6 +193,20 @@ input.search { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px so
   $('csv').addEventListener('click', function () { if (data) csv(); });
   $('logout').addEventListener('click', function () { pw = ''; try { sessionStorage.removeItem(KEY); } catch (e) {} showLogin(''); });
   $('q').addEventListener('input', function () { if (data) render(); });
+  var EV = { delivered: ['entregue', 'ok'], opened: ['aberto', 'ok'], clicked: ['clicado', 'ok'], sent: ['enviado, aguardando entrega', 'warn'], queued: ['na fila', 'warn'], scheduled: ['agendado', 'warn'], delivery_delayed: ['entrega atrasada', 'warn'], bounced: ['devolvido pelo provedor', 'bad'], complained: ['marcado como spam', 'bad'], canceled: ['cancelado', 'bad'], failed: ['falhou', 'bad'] };
+  $('rows').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-mail]'); if (!b) return;
+    b.disabled = true; b.textContent = 'consultando…';
+    fetch('/api/admin?mail=' + encodeURIComponent(b.getAttribute('data-mail')), { headers: { 'x-admin-password': pw }, cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var span = document.createElement('small');
+        if (!d.ok) { span.textContent = 'Resend: ' + (d.message || 'sem resposta'); }
+        else { var ev = EV[d.last_event] || [d.last_event || 'sem status', 'warn']; span.innerHTML = '<span class="tag ' + ev[1] + '">' + esc(ev[0]) + '</span> de ' + esc(d.from || ''); }
+        b.replaceWith(span);
+      })
+      .catch(function () { b.disabled = false; b.textContent = 'tentar de novo'; });
+  });
 
   status();
   if (pw) load(); else showLogin('');

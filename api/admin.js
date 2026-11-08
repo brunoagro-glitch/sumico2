@@ -1,6 +1,6 @@
 // GET /api/admin — lista as varreduras e os leads. Exige o cabeçalho x-admin-password.
 
-const { config, send, header, clientIp, sha, safeEqual, redis, overLimit } = require('./_lib');
+const { config, send, header, clientIp, sha, safeEqual, redis, overLimit, fetchJson } = require('./_lib');
 
 // Custos de referência. Ficam guardados aqui e podem ser ajustados por variável de ambiente.
 // HIBP: plano Pwned 1 (10 consultas por minuto), preço fixo mensal. Serper: 1 crédito por consulta
@@ -28,6 +28,21 @@ module.exports = async (req, res) => {
   if (!given || !safeEqual(given, cfg.adminPassword)) {
     if (await overLimit(cfg, ipKey, 10, 900)) return send(res, 429, { error: 'rate', message: 'Muitas tentativas. Espere 15 minutos.' });
     return send(res, 401, { error: 'auth', message: 'Senha incorreta.' });
+  }
+
+  // Situação de entrega de um e-mail no Resend (?mail=<id>): entregue, na fila, devolvido, marcado como spam...
+  const mailId = String((req.query && req.query.mail) || '').trim();
+  if (mailId) {
+    if (!/^[\w-]{8,64}$/.test(mailId)) return send(res, 400, { error: 'id' });
+    if (!cfg.resend) return send(res, 503, { error: 'resend', message: 'RESEND_API_KEY não configurada.' });
+    try {
+      const r = await fetchJson('https://api.resend.com/emails/' + encodeURIComponent(mailId), { headers: { Authorization: 'Bearer ' + cfg.resend } }, 6000);
+      if (!r.ok) return send(res, 200, { ok: false, status: r.status, message: (r.data && (r.data.message || r.data.name)) || 'erro' });
+      const d = r.data || {};
+      return send(res, 200, { ok: true, last_event: d.last_event || null, from: d.from || null, to: d.to || null, created_at: d.created_at || null });
+    } catch (e) {
+      return send(res, 502, { error: 'resend', message: String(e.message || e) });
+    }
   }
 
   if (!cfg.redisUrl || !cfg.redisToken) {

@@ -380,6 +380,13 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 .res-group li small { display: block; margin-top: 2px; font: 400 12px var(--mono); color: var(--fg-3) }
 .res-group li .pw { display: block; margin-top: 4px; color: #ef6b6f; font-size: 12px }
 .res-more { margin-top: 6px; font-size: 12px; color: var(--fg-3) }
+.res-intro { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--fg-2) }
+.res-intro b { color: var(--fg); font-weight: 500 }
+.res-group li.peek { opacity: .38; filter: blur(2.5px); user-select: none; pointer-events: none }
+.res-group li.peek + li.peek { opacity: .2 }
+.res-lock { margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fg-2) }
+.res-lock svg { width: 14px; height: 14px; flex: none; color: var(--fg-3) }
+.res-group.first { padding: 14px; margin-top: 20px; border: 1px solid rgba(239, 107, 111, .35); border-radius: 12px; background: rgba(239, 107, 111, .05) }
 .res-mail { margin-top: 22px; padding: 14px 16px; border-radius: 12px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start }
 .res-mail.ok { background: rgba(76, 195, 138, .1); color: #b9ecd2 }
 .res-mail.warn { background: rgba(224, 166, 75, .12); color: #f0d3a3 }
@@ -827,8 +834,9 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 
     <!-- Passo 3: resultado -->
     <div data-step="result" hidden>
-      <p class="dlg-eyebrow">Relatório</p>
+      <p class="dlg-eyebrow">Prévia da varredura</p>
       <h2 id="res-title">Sua varredura está pronta</h2>
+      <p class="res-intro" id="res-intro"></p>
       <div id="res-body"></div>
       <div class="res-cta">
         <a class="btn btn-primary" href="#precos" data-close>Quero que removam isso</a>
@@ -931,38 +939,70 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
   function renderResult(data, email) {
     var s = data.search || {}, b = data.breaches || {}, h = '';
     var tiles = '';
-    if (s.enabled && !s.error) tiles += tile(s.total, s.total === 1 ? 'página citando seu nome' : 'páginas citando seu nome', s.total ? 'warn' : 'ok');
     if (b.enabled && !b.error && !b.unavailable) tiles += tile(b.breaches.length, b.breaches.length === 1 ? 'vazamento com seu e-mail' : 'vazamentos com seu e-mail', b.breaches.length ? 'bad' : 'ok');
+    if (s.enabled && !s.error) tiles += tile(s.total, s.total === 1 ? 'página citando seu nome' : 'páginas citando seu nome', s.total ? 'warn' : 'ok');
     if (tiles) h += '<div class="res-tiles">' + tiles + '</div>';
 
-    if (!s.enabled) h += '<p class="dlg-lede">A busca pelo nome ainda não está ativa neste ambiente.</p>';
-    else if (s.error) h += '<p class="dlg-lede">A busca pelo nome falhou desta vez. Tente de novo em alguns minutos.</p>';
-    else if (s.total === 0) h += '<p class="dlg-lede">Não achamos páginas abertas com seu nome completo. Bom sinal, mas sites de consulta também vendem dados que não aparecem no Google.</p>';
+    // Prévia: 3 itens de cada grupo em destaque, 2 apagados para indicar que há mais; o completo vai por e-mail.
+    var SHOW = 3, PEEK = 2;
+    var lock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+    function moreLine(total) {
+      var hidden = total - SHOW;
+      return hidden > 0 ? '<p class="res-lock">' + lock + '<span>+ ' + hidden + (hidden === 1 ? ' item' : ' itens') + ' no relatório completo, no seu e-mail</span></p>' : '';
+    }
+    function weight(it) {
+      var t = ((it.title || '') + ' ' + (it.snippet || '')).toLowerCase();
+      var w = 0;
+      if (/\bcpf\b|\d{3}\.\d{3}\.\d{3}|\*{3}\.\d{3}/.test(t)) w += 4;
+      if (/telefone|celular|whats|\(\d{2}\)\s?\d{4}/.test(t)) w += 3;
+      if (/endere[cç]o|\brua\b|\bav\.|\bcep\b/.test(t)) w += 3;
+      if (/nascimento|idade|\bm[aã]e\b|parentes/.test(t)) w += 2;
+      if (/cnpj|s[oó]cio|empresa/.test(t)) w += 1;
+      return w;
+    }
+    function ranked(items) {
+      return items.map(function (it, i) { return { it: it, i: i, w: weight(it) }; })
+        .sort(function (x, y) { return y.w - x.w || x.i - y.i; }).map(function (x) { return x.it; });
+    }
 
-    (s.groups || []).forEach(function (g) {
-      h += '<div class="res-group"><h3>' + esc(g.label) + '<span>' + g.items.length + '</span></h3><p>' + esc(g.action) + '</p><ul>';
-      g.items.slice(0, 5).forEach(function (it) {
-        h += '<li><a href="' + esc(it.link) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(it.title || it.host) + '</a><small>' + esc(it.host) + '</small></li>';
-      });
-      h += '</ul>' + (g.items.length > 5 ? '<p class="res-more">+ ' + (g.items.length - 5) + ' no relatório completo</p>' : '') + '</div>';
-    });
-
+    // 1) Vazamentos com o e-mail primeiro: é o que mais importa.
     if (b.enabled && b.breaches && b.breaches.length) {
-      h += '<div class="res-group"><h3>Vazamentos com seu e-mail<span>' + b.breaches.length + '</span></h3><p>Troque as senhas desses serviços e ative a verificação em duas etapas</p><ul>';
-      b.breaches.slice(0, 5).forEach(function (x) {
+      var br = b.breaches.slice().sort(function (x, y) { return (y.password ? 1 : 0) - (x.password ? 1 : 0) || String(y.date || '').localeCompare(String(x.date || '')); });
+      h += '<div class="res-group first"><h3>Vazamentos com seu e-mail<span>' + br.length + '</span></h3><p>Troque as senhas desses serviços e ative a verificação em duas etapas</p><ul>';
+      br.slice(0, SHOW).forEach(function (x) {
         h += '<li>' + esc(x.name) + ' <small>' + esc(fmtDate(x.date)) + ' · ' + esc(x.data.slice(0, 5).join(', ')) + '</small>' + (x.password ? '<span class="pw">Sua senha vazou aqui</span>' : '') + '</li>';
       });
-      h += '</ul>' + (b.breaches.length > 5 ? '<p class="res-more">+ ' + (b.breaches.length - 5) + ' no relatório completo</p>' : '') +
-        (b.source ? '<p class="res-more">Fonte dos vazamentos: ' + esc(b.source) + '</p>' : '') + '</div>';
+      br.slice(SHOW, SHOW + PEEK).forEach(function (x) { h += '<li class="peek" aria-hidden="true">' + esc(x.name) + ' <small>' + esc(fmtDate(x.date)) + ' · ' + esc(x.data.slice(0, 3).join(', ')) + '</small></li>'; });
+      h += '</ul>' + moreLine(br.length) + (b.source ? '<p class="res-more">Fonte dos vazamentos: ' + esc(b.source) + '</p>' : '') + '</div>';
+    } else if (b.enabled && !b.error && !b.unavailable) {
+      h += '<div class="res-group"><h3>Vazamentos com seu e-mail<span>0</span></h3><p>Seu e-mail não aparece nas bases de vazamentos conhecidas. Bom sinal.</p></div>';
     } else if (b.enabled && b.unavailable) {
       h += '<p class="dlg-lede">Vazamentos indisponíveis agora. Peça uma nova varredura mais tarde para ver esta parte.</p>';
     } else if (b.enabled && b.error) {
       h += '<p class="dlg-lede">A consulta de vazamentos falhou desta vez.</p>';
     }
 
+    // 2) Páginas com o nome, por grupo.
+    if (!s.enabled) h += '<p class="dlg-lede">A busca pelo nome ainda não está ativa neste ambiente.</p>';
+    else if (s.error) h += '<p class="dlg-lede">A busca pelo nome falhou desta vez. Tente de novo em alguns minutos.</p>';
+    else if (s.total === 0) h += '<p class="dlg-lede">Não achamos páginas abertas com seu nome completo. Bom sinal, mas sites de consulta também vendem dados que não aparecem no Google.</p>';
+
+    (s.groups || []).forEach(function (g) {
+      var items = ranked(g.items);
+      h += '<div class="res-group"><h3>' + esc(g.label) + '<span>' + items.length + '</span></h3><p>' + esc(g.action) + '</p><ul>';
+      items.slice(0, SHOW).forEach(function (it) {
+        h += '<li><a href="' + esc(it.link) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(it.title || it.host) + '</a><small>' + esc(it.host) + '</small></li>';
+      });
+      items.slice(SHOW, SHOW + PEEK).forEach(function (it) { h += '<li class="peek" aria-hidden="true">' + esc(it.title || it.host) + '<small>' + esc(it.host) + '</small></li>'; });
+      h += '</ul>' + moreLine(items.length) + '</div>';
+    });
+
     var m = data.mail || {};
-    if (m.sent) h += '<div class="res-mail ok">Enviamos o relatório completo para <b>' + esc(email) + '</b>. Se não aparecer em alguns minutos, olhe o spam.</div>';
+    if (m.sent) h += '<div class="res-mail ok">Enviamos o relatório completo para <b>' + esc(email) + '</b>. Se não aparecer em alguns minutos, olhe o spam e a caixa de lixo eletrônico.</div>';
     else h += '<div class="res-mail warn">Não conseguimos enviar o relatório para ' + esc(email) + ' agora. Guarde esta tela; você continua na lista de espera.</div>';
+    document.getElementById('res-intro').innerHTML = m.sent
+      ? 'Esta é uma prévia com até 3 itens de cada grupo. O relatório completo, com todos os links, foi enviado para <b>' + esc(email) + '</b>.'
+      : 'Esta é uma prévia com até 3 itens de cada grupo.';
 
     var n = (s.total || 0) + ((b.breaches && b.breaches.length) || 0);
     document.getElementById('res-title').textContent = n ? 'Encontramos ' + n + (n === 1 ? ' item' : ' itens') + ' sobre você' : 'Sua varredura está pronta';

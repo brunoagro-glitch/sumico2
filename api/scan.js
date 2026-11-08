@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
     breaches: breaches.enabled && !breaches.error && !breaches.unavailable ? breaches.breaches.length : null,
     breachSource: breaches.provider || '', breachUnavailable: !!breaches.unavailable,
     searchError: !!search.error, searchDetail: search.errorDetail || '', breachError: !!breaches.error,
-    mail: mail.sent ? 'enviado' : (mail.reason || 'erro'), mailDetail: mail.detail || '',
+    mail: mail.sent ? 'enviado' : (mail.reason || 'erro'), mailDetail: mail.detail || '', mailId: mail.id || '', mailFrom: cfg.resendFrom,
   };
   let stored = false;
   try {

@@ -275,14 +275,6 @@ function buildEmail(cfg, name, report) {
   }
   if (s.error) parts.push(`<p style="font-size:14px;color:${C.warn}">A busca pelo nome falhou desta vez. Tente a varredura de novo mais tarde.</p>`);
 
-  for (const g of s.groups || []) {
-    parts.push(`<h3 style="margin:28px 0 4px;font-size:16px;color:${C.fg}">${esc(g.label)} <span style="color:${C.fg2};font-weight:400">· ${g.items.length}</span></h3><p style="margin:0 0 10px;font-size:12px;color:${C.fg2}">${esc(g.action)}</p>`);
-    for (const it of g.items.slice(0, 12)) {
-      parts.push(`<div style="padding:10px 0;border-top:1px solid ${C.line}"><a href="${esc(it.link)}" style="color:${C.accent};font-size:14px;text-decoration:none">${esc(it.title || it.host)}</a><div style="font:12px Menlo,monospace;color:${C.fg2};margin-top:2px">${esc(it.host)}</div>${it.snippet ? `<div style="font-size:13px;color:${C.fg2};margin-top:4px">${esc(it.snippet)}</div>` : ''}</div>`);
-    }
-    if (g.items.length > 12) parts.push(`<p style="font-size:12px;color:${C.fg2}">E mais ${g.items.length - 12} nesta categoria.</p>`);
-  }
-
   if (b.enabled) {
     parts.push(`<h3 style="margin:28px 0 8px;font-size:16px;color:${C.fg}">Vazamentos com o seu e-mail</h3>`);
     if (b.unavailable) parts.push(`<p style="font-size:14px;color:${C.warn}">Vazamentos indisponíveis agora: a base de consulta atingiu o limite de acessos. Peça uma nova varredura mais tarde para ver esta parte.</p>`);
@@ -295,6 +287,14 @@ function buildEmail(cfg, name, report) {
     if (b.source) parts.push(`<p style="margin-top:12px;font-size:12px;color:${C.fg2}">Fonte dos vazamentos: ${esc(b.source)}</p>`);
   }
 
+  for (const g of s.groups || []) {
+    parts.push(`<h3 style="margin:28px 0 4px;font-size:16px;color:${C.fg}">${esc(g.label)} <span style="color:${C.fg2};font-weight:400">· ${g.items.length}</span></h3><p style="margin:0 0 10px;font-size:12px;color:${C.fg2}">${esc(g.action)}</p>`);
+    for (const it of g.items.slice(0, 12)) {
+      parts.push(`<div style="padding:10px 0;border-top:1px solid ${C.line}"><a href="${esc(it.link)}" style="color:${C.accent};font-size:14px;text-decoration:none">${esc(it.title || it.host)}</a><div style="font:12px Menlo,monospace;color:${C.fg2};margin-top:2px">${esc(it.host)}</div>${it.snippet ? `<div style="font-size:13px;color:${C.fg2};margin-top:4px">${esc(it.snippet)}</div>` : ''}</div>`);
+    }
+    if (g.items.length > 12) parts.push(`<p style="font-size:12px;color:${C.fg2}">E mais ${g.items.length - 12} nesta categoria.</p>`);
+  }
+
   parts.push(`<div style="margin:32px 0 8px;padding:20px;border-radius:12px;background:${C.fg};color:#fff"><b style="font-size:16px">Quer que a gente peça a remoção?</b><p style="margin:8px 0 16px;font-size:14px;color:#c9ceda">O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês. Você está na lista de espera com preço de fundador.</p><a href="${esc(cfg.siteUrl)}/#precos" style="display:inline-block;padding:10px 18px;border-radius:8px;background:#fff;color:${C.fg};font-weight:600;font-size:14px;text-decoration:none">Ver planos</a></div>`);
 
   parts.push(`<p style="margin-top:24px;font-size:12px;color:${C.fg2}">Você recebeu este e-mail porque pediu uma varredura grátis em ${esc(domainToUnicode(cfg.siteUrl.replace(/^https?:\/\//, '')))}. Se não foi você, ignore. Para apagar seus dados, responda pedindo a exclusão.</p>`);
@@ -305,11 +305,11 @@ function buildEmail(cfg, name, report) {
   if (s.enabled) lines.push(`Páginas citando seu nome: ${s.total}`);
   if (bOk) lines.push(`Vazamentos com seu e-mail: ${b.breaches.length}`);
   else if (b.unavailable) lines.push('Vazamentos: indisponíveis agora, tente uma nova varredura mais tarde.');
+  for (const x of b.breaches || []) lines.push(`- Vazamento ${x.name} (${fmtDate(x.date)}): ${x.data.join(', ')}`);
   for (const g of s.groups || []) {
     lines.push('', `${g.label} (${g.items.length}) - ${g.action}`);
     for (const it of g.items.slice(0, 12)) lines.push(`- ${it.title || it.host}: ${it.link}`);
   }
-  for (const x of b.breaches || []) lines.push(`- Vazamento ${x.name} (${fmtDate(x.date)}): ${x.data.join(', ')}`);
   if (bOk && b.source) lines.push(`Fonte dos vazamentos: ${b.source}`);
   lines.push('', `Planos: ${cfg.siteUrl}/#precos`);
 
