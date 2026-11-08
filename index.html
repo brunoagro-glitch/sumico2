@@ -488,7 +488,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         <div class="exposure rise" id="exposure" aria-live="polite">
           <div class="exp-radar" aria-hidden="true"><span class="ping"></span><span class="dot"></span></div>
           <div>
-            <div class="exp-head" id="exp-head">Este site já sabe onde você está</div>
+            <div class="exp-head" id="exp-head">Este site já sabe, aproximadamente, onde você está</div>
             <div class="exp-city" id="exp-city">Localizando você…</div>
             <div class="exp-meta mono" id="exp-meta"><span class="live">agora</span></div>
           </div>
@@ -1125,7 +1125,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
     metaEl.innerHTML = meta;
   }
   function fallback() {
-    document.getElementById('exp-head').textContent = 'Qualquer site sabe onde você está';
+    document.getElementById('exp-head').textContent = 'Qualquer site sabe, aproximadamente, onde você está';
     type(cityEl, 'Sua cidade, sua operadora, seu IP');
     metaEl.innerHTML = '<span class="live">em cada página que você abre</span>';
     document.getElementById('exp-foot').textContent = 'Inclusive este. A diferença é que nós não guardamos.';
