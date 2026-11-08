@@ -368,6 +368,28 @@ section.block { padding-block: 104px }
 .swap { transition: opacity .2s ease, filter .2s ease }
 .swap.out { opacity: 0; filter: blur(2px) }
 @media (prefers-reduced-motion: reduce) { .term-seg .thumb, .swap { transition: none } }
+/* Condição pré-Black Friday: faixas cruzadas e cronômetro */
+#precos { overflow-x: clip }
+.bf { position: relative; display: grid; place-items: center; min-height: 230px; margin: 8px 0 40px }
+.bf-tapes { position: absolute; inset: 0; left: 50%; width: 100vw; transform: translateX(-50%); pointer-events: none }
+.tape { position: absolute; left: -10vw; width: 120vw; top: 50%; height: 34px; margin-top: -17px; display: flex; align-items: center; overflow: hidden; background: #f2c230; border-block: 2px solid #111; box-shadow: 0 6px 18px rgba(0, 0, 0, .35) }
+.tape span { flex: none; white-space: nowrap; padding-left: 12px; font: 700 13px/1 var(--mono); letter-spacing: .14em; color: #111 }
+.tape.t1 { transform: rotate(-4deg) }
+.tape.t2 { transform: rotate(3deg); background: #e9b41f; opacity: .92 }
+.bf-box { position: relative; z-index: 1; display: grid; justify-items: center; gap: 10px; max-width: 520px; padding: 22px 28px 24px; border-radius: 16px; border: 1px solid rgba(242, 194, 48, .55); background: #0d0e12; box-shadow: 0 0 0 6px rgba(13, 14, 18, .85), 0 24px 50px rgba(0, 0, 0, .5); text-align: center }
+.bf-title { font: 600 12px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: #f2c230 }
+.bf-sub { color: var(--fg-2); font-size: 15px; line-height: 1.45 }
+.bf-sub b { color: var(--fg); font-weight: 600 }
+.bf-timer { display: flex; gap: 8px; margin-top: 4px }
+.bf-timer span { display: grid; justify-items: center; gap: 4px; min-width: 64px; padding: 10px 8px 8px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--raised) }
+.bf-timer b { font: 600 26px/1 var(--mono); color: var(--fg); font-variant-numeric: tabular-nums }
+.bf-timer i { font: 400 11px/1 var(--mono); font-style: normal; color: var(--fg-3) }
+@media (prefers-reduced-motion: no-preference) {
+  .tape span { animation: tape 40s linear infinite }
+  .tape.t2 span { animation-direction: reverse }
+  @keyframes tape { to { transform: translateX(-50%) } }
+}
+@media (max-width: 560px) { .bf { min-height: 340px; margin-bottom: 24px } .bf-box { padding: 18px 16px 20px } .bf-timer span { min-width: 56px } .bf-timer b { font-size: 22px } .tape { height: 30px; margin-top: 0 } .tape span { font-size: 11px } .tape.t1 { top: 14px } .tape.t2 { top: auto; bottom: 14px } }
 .founder { margin-top: 32px; text-align: center; color: var(--fg-2); font-size: 14px }
 .founder b { color: var(--fg); font-weight: 500 }
 
@@ -492,7 +514,8 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 .compare { padding-block: 104px 96px }
 .cmp-card { --ink: #0b0d14; --ink-2: #3f4657; --ink-3: #626a7c; --rule: #d3d7df; --r1: #e4e7ed; --r2: #d9dde5; --u1: #d6e1f4; --u2: #cbd8ef;
   background: var(--r1); color: var(--ink); border-radius: 16px; overflow: hidden }
-.cmp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch }
+.cmp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100% }
+.cmp-card { min-width: 0; max-width: 100% }
 .cmp-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px }
 .cmp { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; line-height: 1.4 }
 .cmp th, .cmp td { padding: 11px 16px; vertical-align: middle; text-align: center; background: var(--r1) }
@@ -900,6 +923,22 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         <h2>Preço simples, sem letra miúda</h2>
         <p>A varredura inicial é grátis. Você só assina se quiser que a gente remova. Empresas têm um plano dedicado.</p>
       </div>
+      <div class="bf" id="bf">
+        <div class="bf-tapes" aria-hidden="true">
+          <div class="tape t1"><span>PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR</span></div>
+          <div class="tape t2"><span>PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR · PRÉ-BLACK FRIDAY · PREÇO DE FUNDADOR</span></div>
+        </div>
+        <div class="bf-box">
+          <p class="bf-title">Condição pré-Black Friday</p>
+          <p class="bf-sub">Entre na lista até <b>27/11, às 23:59</b>, e garanta o preço de fundador no lançamento.</p>
+          <div class="bf-timer" role="timer" aria-live="off" aria-label="Tempo restante">
+            <span><b data-u="d">--</b><i>dias</i></span>
+            <span><b data-u="h">--</b><i>horas</i></span>
+            <span><b data-u="m">--</b><i>min</i></span>
+            <span><b data-u="s">--</b><i>seg</i></span>
+          </div>
+        </div>
+      </div>
       <div class="term">
         <div class="term-seg" id="term" role="radiogroup" aria-label="Período do plano" data-v="1">
           <span class="thumb" aria-hidden="true"></span>
@@ -956,7 +995,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         </div>
       </div>
 
-      <p class="founder">Quem entrar na lista agora garante <b>preço de fundador</b> no lançamento.</p>
+      <p class="founder">Quem entrar na lista até 27/11 garante <b>preço de fundador</b> no lançamento.</p>
     </div>
   </section>
 
@@ -1303,6 +1342,30 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
       })
       .catch(function () { finish(); submitBtn.disabled = false; resetTurnstile(); step('form'); errEl.textContent = 'Sem conexão com o servidor. Confira sua internet e tente de novo.'; });
   });
+})();
+</script>
+<script>
+/* Cronômetro da condição pré-Black Friday: até 27/11/2026 às 23:59 (horário de Brasília).
+   Depois do prazo, o bloco some e a frase de fundador volta ao texto geral. */
+(function () {
+  var box = document.getElementById('bf'); if (!box) return;
+  var END = Date.parse('2026-11-27T23:59:59-03:00');
+  var el = {}; ['d', 'h', 'm', 's'].forEach(function (k) { el[k] = box.querySelector('[data-u="' + k + '"]'); });
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function tick() {
+    var left = END - Date.now();
+    if (left <= 0) {
+      box.remove();
+      var f = document.querySelector('.founder'); if (f) f.innerHTML = 'Quem entrar na lista agora garante <b>preço de fundador</b> no lançamento.';
+      clearInterval(t); return;
+    }
+    var sec = Math.floor(left / 1000);
+    el.d.textContent = Math.floor(sec / 86400);
+    el.h.textContent = pad(Math.floor(sec % 86400 / 3600));
+    el.m.textContent = pad(Math.floor(sec % 3600 / 60));
+    el.s.textContent = pad(sec % 60);
+  }
+  var t = setInterval(tick, 1000); tick();
 })();
 </script>
 <script>
