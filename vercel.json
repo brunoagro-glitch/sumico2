@@ -11,6 +11,11 @@
       ],
       "destination": "https://www.xn--sumio-1ra.com.br/$1",
       "permanent": true
+    },
+    {
+      "source": "/animado",
+      "destination": "/",
+      "permanent": false
     }
   ],
   "headers": [
