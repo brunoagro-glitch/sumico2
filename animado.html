@@ -215,7 +215,8 @@ p { margin: 0 }
 .eyebrow { font-size: clamp(26px, 3vw, 36px); line-height: 1.15; font-weight: 600; letter-spacing: -.03em; color: var(--fg) }
 .wh-hint .h-touch { display: none }
 @media (hover: none) { .wh-hint .h-mouse { display: none } .wh-hint .h-touch { display: inline } }
-.wh-hint { margin-top: 10px; font: 400 13px/1.4 var(--mono); color: var(--fg-3) }
+.wh-hint { margin-top: 22px; text-align: center; font-size: 16px; line-height: 1.4; font-weight: 500; color: #c9cdd6; letter-spacing: -.005em }
+.wh-hint .ico { display: inline-block; vertical-align: -2px; margin-right: 8px; width: 16px; height: 16px; color: #8fd6df; fill: rgba(143, 214, 223, .18); stroke-width: 1.8 }
 .source-row { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 32px; color: var(--fg); font-size: 15px; font-weight: 500; letter-spacing: -.01em }
 .wh { position: relative }
 .wh:nth-child(1) { --c: 242, 137, 74 }
@@ -224,7 +225,7 @@ p { margin: 0 }
 .wh:nth-child(4) { --c: 79, 179, 192 }
 .wh:nth-child(5) { --c: 239, 84, 84 }
 .wh:nth-child(6) { --c: 92, 201, 138 }
-.wh-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 22px; border: 1px solid rgba(var(--c), .55); background: rgba(var(--c), .14); color: var(--fg); font: inherit; cursor: pointer; transition: border-color .15s var(--ease), background-color .15s var(--ease), transform .15s var(--ease), box-shadow .15s var(--ease) }
+.wh-btn { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 13px; border-radius: 23px; border: 2px solid rgba(var(--c), .7); background: rgba(var(--c), .14); color: var(--fg); font: inherit; cursor: pointer; transition: border-color .15s var(--ease), background-color .15s var(--ease), transform .15s var(--ease), box-shadow .15s var(--ease) }
 .wh-btn svg { color: rgb(var(--c)) }
 .wh:hover .wh-btn, .wh-btn:focus-visible, .wh.open .wh-btn { border-color: rgb(var(--c)); background: rgba(var(--c), .26); box-shadow: 0 0 0 4px rgba(var(--c), .14), 0 8px 24px rgba(var(--c), .18); transform: translateY(-2px) }
 .wh-btn:active { transform: translateY(0) scale(.98) }
@@ -723,7 +724,6 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
   <section class="sources">
     <div class="wrap">
       <p class="eyebrow">Onde seus dados costumam aparecer</p>
-      <p class="wh-hint"><span class="h-mouse">Passe o mouse em cada um para ver onde procuramos</span><span class="h-touch">Toque em cada um para ver onde procuramos</span></p>
       <div class="source-row">
         <div class="wh">
           <button type="button" class="wh-btn" aria-expanded="false" aria-controls="wh-pop-1"><svg class="ico"><use href="#i-id"/></svg>Consulta de CPF</button>
@@ -774,6 +774,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
           </div>
         </div>
       </div>
+      <p class="wh-hint"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3l7.5 17 2.2-6.8L20.5 11z"/></svg><span class="h-mouse">Passe o mouse em cada um para ver onde procuramos</span><span class="h-touch">Toque em cada um para ver onde procuramos</span></p>
     </div>
   </section>
 
