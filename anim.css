@@ -122,3 +122,6 @@
 @media (prefers-reduced-motion: no-preference) {
   .anim .hero h1 .ln { color: var(--fg); white-space: normal }
 }
+
+/* sem movimento: a luz do cartão não entra no layout */
+html:not(.anim) .glow > .spot { display: none }

@@ -336,6 +336,10 @@ section.block { padding-block: 104px }
 .feat.support p { color: #c3d0d3; font-size: 15px }
 .tag-247 { margin-left: 4px; padding: 3px 8px; border-radius: 999px; background: rgba(64, 142, 154, .28); color: #9fd3da; font: 500 11px/1.2 var(--mono); white-space: nowrap }
 @media (max-width: 760px) { .feat.support { grid-template-columns: 1fr } }
+.sup-body { display: grid; gap: 14px; justify-items: start }
+.wa-btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 10px; background: #25d366; color: #062b16; font: 600 14px/1 var(--sans, inherit); text-decoration: none; transition: transform .15s, background .15s }
+.wa-btn:hover { background: #3ee07a; transform: translateY(-1px) }
+.wa-btn img { width: 20px; height: 20px; border-radius: 5px }
 
 /* Preços */
 .plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: stretch }
@@ -440,6 +444,10 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 .social:hover { color: var(--fg); border-color: var(--fg-3) }
 .social img { width: 18px; height: 18px; opacity: .8; transition: opacity .15s }
 .social:hover img { opacity: 1 }
+.socials { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end }
+@media (max-width: 560px) { .foot-id { flex-wrap: wrap } .socials { width: 100%; justify-content: flex-start } }
+.social-wa img { border-radius: 4px; opacity: 1 }
+.social-wa:hover { border-color: #25d366 }
 .pill { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 10px; color: var(--fg-2) }
 .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent) }
 .pill em { font-style: normal; color: var(--accent-ink) }
@@ -929,7 +937,10 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         </div>
         <div class="feat support">
           <div class="t"><img class="wa-ico" src="whatsapp.png" alt="WhatsApp" width="32" height="32"><h3>Suporte 24/7</h3><span class="tag-247">a qualquer hora</span></div>
-          <p>Acha que se cadastrou em algo fraudado ou que recebeu um malware no celular ou no computador? Avise a gente, de dia ou de noite. Redobramos o monitoramento dos seus dados.</p>
+          <div class="sup-body">
+            <p>Acha que se cadastrou em algo fraudado ou que recebeu um malware no celular ou no computador? Avise a gente, de dia ou de noite. Redobramos o monitoramento dos seus dados.</p>
+            <a class="wa-btn" href="https://wa.me/5549988525221?text=Ol%C3%A1%2C%20eu%20vim%20pelo%20Sumi%C3%A7o%21" target="_blank" rel="noopener"><img src="whatsapp.png" alt="" width="20" height="20">Falar no WhatsApp</a>
+          </div>
         </div>
       </div>
     </div>
@@ -1104,10 +1115,16 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
           <img src="sumico-simbolo.png" alt="" width="16" height="24">
           Sumiço
         </span>
+        <span class="socials">
         <a class="social" href="https://www.instagram.com/sumico.app/" target="_blank" rel="noopener" aria-label="Sumiço no Instagram (@sumico.app)">
           <img src="instagram-glyph-white.svg" width="18" height="18" alt="">
           <span>Instagram</span>
         </a>
+        <a class="social social-wa" href="https://wa.me/5549988525221?text=Ol%C3%A1%2C%20eu%20vim%20pelo%20Sumi%C3%A7o%21" target="_blank" rel="noopener" aria-label="Suporte do Sumiço no WhatsApp">
+          <img src="whatsapp.png" width="18" height="18" alt="">
+          <span>Suporte no WhatsApp</span>
+        </a>
+        </span>
       </div>
       <span>© 2026 Sumiço · Feito no Brasil, em conformidade com a LGPD</span>
       <span class="pill"><i></i>Status: <em>lista de espera aberta</em></span>
