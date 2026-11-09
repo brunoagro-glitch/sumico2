@@ -17,11 +17,9 @@
   ghost.innerHTML =
     '<span class="ghost-tip">Quer ver onde você aparece?</span>' +
     '<svg viewBox="0 0 64 76" aria-hidden="true">' +
-      '<path class="g-body g-hem" d="M32 2C16 2 6 14 6 30v38c0 3 3 4 5 2l5-5 6 6c2 2 4 2 6 0l4-4 4 4c2 2 4 2 6 0l6-6 5 5c2 2 5 1 5-2V30C58 14 48 2 32 2z"/>' +
-      '<path class="g-shade" d="M46 10c6 5 9 12 9 20v12c-4-14-12-24-23-28 5-2 10-6 14-4z" opacity=".55"/>' +
-      '<g class="g-eyes"><g class="g-pupils"><ellipse class="g-eye" cx="23" cy="31" rx="4" ry="5.2"/><ellipse class="g-eye" cx="41" cy="31" rx="4" ry="5.2"/></g></g>' +
-      '<ellipse class="g-cheek" cx="17" cy="40" rx="4" ry="2.4"/><ellipse class="g-cheek" cx="47" cy="40" rx="4" ry="2.4"/>' +
-      '<path d="M28 42c2 2.4 6 2.4 8 0" stroke="#093341" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
+      '<defs><linearGradient id="g-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9f2f4"/><stop offset="1" stop-color="#b9cfd3" stop-opacity=".85"/></linearGradient></defs>' +
+      '<path class="g-body g-hem" fill="url(#g-grad)" d="M32 3C17 3 8 15 8 30v39l6-6 6 7 6-7 6 7 6-7 6 7 6-7 6 6V30C56 15 47 3 32 3z"/>' +
+      '<g class="g-eyes"><g class="g-pupils"><rect class="g-eye" x="20" y="25" width="6" height="12" rx="3"/><rect class="g-eye" x="38" y="25" width="6" height="12" rx="3"/></g></g>' +
     '</svg><span class="ghost-shadow"></span>';
   document.body.appendChild(ghost);
   ghost.addEventListener('click', function () {
