@@ -1,0 +1,41 @@
+# Só na branch de prévia: baixa os 3 vídeos gratuitos do Pexels, comprime para o fundo do topo
+# e grava em media/. Não roda na main.
+name: fetch-preview-videos
+on:
+  push:
+    branches: [preview-video]
+    paths: ['.github/workflows/fetch-videos.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: preview-video }
+      - name: ffmpeg
+        run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Baixar e comprimir
+        run: |
+          set -e
+          mkdir -p media raw
+          UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36'
+          get() { curl -fL --retry 3 -A "$UA" -o "raw/$1.mp4" "$2"; }
+          get datacenter https://videos.pexels.com/video-files/5028622/5028622-uhd_2560_1440_25fps.mp4
+          get cofre      https://videos.pexels.com/video-files/39060937/16622011_1920_1080_25fps.mp4
+          get cadeado    https://videos.pexels.com/video-files/40607898/17347440_2560_1440_30fps.mp4
+          for n in datacenter cofre cadeado; do
+            ffprobe -v error -show_entries format=duration:stream=width,height -of compact "raw/$n.mp4"
+            ffmpeg -y -v error -ss 1 -t 14 -i "raw/$n.mp4" -an -vf "scale=1280:-2,fps=25" -c:v libx264 -preset veryfast -crf 30 -pix_fmt yuv420p -movflags +faststart "media/bg-$n.mp4"
+            ffmpeg -y -v error -ss 2 -i "media/bg-$n.mp4" -frames:v 1 -vf scale=1280:-2 -q:v 5 "media/bg-$n.jpg"
+            ffmpeg -y -v error -i "media/bg-$n.mp4" -vf "fps=1/3.5,scale=480:-2,tile=4x1" -frames:v 1 "media/sheet-$n.jpg"
+          done
+          ls -la media
+      - name: Gravar na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add media
+          git commit -m "Prévia: vídeos de fundo comprimidos (Pexels, licença gratuita)" || exit 0
+          git push origin HEAD:preview-video
