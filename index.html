@@ -95,6 +95,19 @@ p { margin: 0 }
     linear-gradient(90deg, transparent calc(50% - .5px), rgba(238,240,245,.05) 50%, transparent calc(50% + .5px)),
     linear-gradient(90deg, transparent calc(20% - .5px), rgba(238,240,245,.035) 20%, transparent calc(20% + .5px)),
     linear-gradient(90deg, transparent calc(80% - .5px), rgba(238,240,245,.035) 80%, transparent calc(80% + .5px)) }
+/* Vídeo de fundo do topo: fica atrás de tudo, escurecido à esquerda para o texto
+   e com as bordas apagadas no fundo da página, para não competir com o título nem com o relatório. */
+.hero-video { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: var(--bg) }
+.hero-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .62; filter: saturate(.75) contrast(1.05); transform: scale(1.04) }
+.hero-video::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(31, 111, 122, .18); mix-blend-mode: color }
+.hero-video::after { content: ""; position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(8, 9, 13, .94) 0%, rgba(8, 9, 13, .8) 38%, rgba(8, 9, 13, .42) 70%, rgba(8, 9, 13, .55) 100%),
+    linear-gradient(180deg, rgba(8, 9, 13, .7) 0%, transparent 22%, transparent 70%, var(--bg) 100%) }
+@media (max-width: 960px) {
+  .hero-video video { opacity: .38 }
+  .hero-video::after { background: linear-gradient(180deg, rgba(8, 9, 13, .8) 0%, rgba(8, 9, 13, .72) 50%, var(--bg) 100%) }
+}
 .hero-grid { position: relative; max-width: 1200px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center }
 @media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 56px } .hero { padding-block: 56px 72px } }
 .hero h1 { font-size: clamp(40px, 5.6vw, 84px); line-height: 1.02; letter-spacing: -.045em; font-weight: 600 }
@@ -640,7 +653,12 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 
 <main id="topo">
   <!-- Hero -->
-  <section class="hero">
+  <section class="hero has-video">
+    <div class="hero-video" aria-hidden="true">
+      <video id="hero-vid" muted playsinline autoplay loop preload="auto" poster="media/bg-cadeado.jpg" disablepictureinpicture>
+        <source src="media/bg-cadeado.mp4" type="video/mp4">
+      </video>
+    </div>
     <div class="hero-bg" aria-hidden="true"></div>
     <div class="wrap hero-grid">
       <div class="hero-copy">
@@ -1662,3 +1680,13 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 })();
 </script>
 <script src="anim.js" defer></script>
+<script>
+/* Vídeo do topo: quem pediu menos movimento vê só a imagem parada; fora da tela, o vídeo pausa. */
+(function () {
+  var v = document.getElementById('hero-vid'); if (!v) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { v.removeAttribute('autoplay'); v.pause(); return; }
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (e) {
+    if (e[0].isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } else v.pause();
+  }).observe(v.parentNode);
+})();
+</script>
