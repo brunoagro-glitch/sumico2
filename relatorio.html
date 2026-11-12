@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="favicon-180.png">
 <style>
-:root { color-scheme: dark; --bg: #08090d; --surface: #0d0f15; --raised: #1a1d26; --line: rgba(238,240,245,.10); --line-strong: rgba(238,240,245,.18); --fg: #eef0f5; --fg-2: #a3a9b8; --fg-3: #7a8296; --accent: #3d8bff; --accent-ink: #8fbaff; --ok: #4cc38a; --warn: #e0a64b; --bad: #ef6b6f; --mono: ui-monospace, "SFMono-Regular", Menlo, monospace }
+:root { color-scheme: dark; --bg: #08090d; --surface: #0d0f15; --raised: #1a1d26; --line: rgba(238,240,245,.10); --line-strong: rgba(238,240,245,.18); --fg: #eef0f5; --fg-2: #a3a9b8; --fg-3: #7a8296; --accent: #3d8bff; --accent-ink: #8fbaff; --ok: #4cc38a; --warn: #e0a64b; --bad: #ef6b6f; --mono: ui-monospace, "SFMono-Regular", Menlo, monospace; --sans: -apple-system, "Segoe UI", system-ui, sans-serif; --btn: #f2f3f6; --btn-ink: #0b0d14; --ease: cubic-bezier(.2, .7, .2, 1) }
 * { box-sizing: border-box }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif }
 .wrap { max-width: 760px; margin: 0 auto; padding: 28px 16px 72px }
@@ -51,6 +51,137 @@ h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spa
 .state { margin: 18vh auto 0; max-width: 440px; text-align: center }
 .state p { color: var(--fg-2) }
 .state .btn { margin-top: 12px }
+/* ---- Janela de planos (copiada da página inicial: botões, planos, Pré-Black Friday, lista de espera) ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 20px; border-radius: 8px; border: 1px solid transparent;
+  font: 500 14px/1 var(--sans); cursor: pointer;
+  transition: background-color .15s var(--ease), border-color .15s var(--ease), transform .1s var(--ease);
+}
+.btn:active { transform: scale(.98) }
+.btn-primary { background: var(--btn); color: var(--btn-ink) }
+.btn-primary:hover { background: #ffffff }
+.btn-ghost { background: transparent; color: var(--fg); border-color: var(--line-strong) }
+.btn-ghost:hover { background: var(--raised) }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 6px }
+.ico { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none }
+.plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: stretch }
+@media (max-width: 1080px) { .plans { grid-template-columns: repeat(2, 1fr) } }
+@media (max-width: 620px) { .plans { grid-template-columns: 1fr } }
+.plan { border: 1px solid var(--line-strong); border-radius: 14px; padding: 28px; background: var(--surface); display: flex; flex-direction: column; gap: 20px; position: relative }
+.plan.featured { border-color: rgba(61, 139, 255, .4) }
+.plan .tag { position: absolute; top: -8px; left: 22px; font: 500 12px/1 var(--mono); padding: 0 6px; background: var(--bg); color: var(--accent-ink) }
+.plan h3 { font-size: 15px; font-weight: 500; color: var(--fg-2); letter-spacing: 0 }
+.price { display: flex; align-items: baseline; gap: 6px }
+.price b { font: 500 36px/1 var(--mono); letter-spacing: -.03em }
+.price span { color: var(--fg-3); font-size: 14px }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 14px; color: var(--fg-2) }
+.plan li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; align-items: start }
+.plan li svg { width: 16px; height: 16px; margin-top: 3px; color: var(--accent-ink) }
+.plan .btn { margin-top: auto; width: 100% }
+.plan.ent { background: #151821; border-color: var(--line-strong) }
+.plan.ent .tag { color: var(--fg-2) }
+.plan.ent .lead { color: var(--fg-2); font-size: 14px; line-height: 1.55 }
+.price b.consult { font-size: 28px; line-height: 36px }
+.plan.ent .quote { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 13px; color: var(--fg-2) }
+.plan.ent .quote svg { color: var(--fg-2); margin-top: 2px }
+.plan.ent .quote b { display: block; color: var(--fg); font-weight: 500; font-size: 14px }
+.term { display: flex; justify-content: flex-start; margin: -16px 0 36px }
+.term-seg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface) }
+.term-seg button { position: relative; z-index: 1; min-width: 120px; height: 36px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--fg-2); font: 500 14px/1 var(--sans); cursor: pointer; transition: color .2s ease }
+.term-seg button[aria-checked="true"] { color: var(--fg) }
+.term-seg button small { margin-left: 6px; font: 500 11px/1 var(--mono); color: var(--ok) }
+.term-seg .thumb { position: absolute; z-index: 0; top: 4px; left: 4px; width: calc(50% - 4px); height: 36px; border-radius: 7px; background: var(--raised); box-shadow: inset 0 0 0 1px var(--line-strong); transition: transform .3s cubic-bezier(.32, .72, 0, 1) }
+.term-seg[data-v="2"] .thumb { transform: translateX(100%) }
+.swap { transition: opacity .2s ease, filter .2s ease }
+.swap.out { opacity: 0; filter: blur(2px) }
+@media (prefers-reduced-motion: reduce) { .term-seg .thumb, .swap { transition: none } }
+.bf { position: relative; display: grid; place-items: center; min-height: 230px; margin: 8px 0 40px }
+.bf-tapes { position: absolute; inset: 0; left: 50%; width: 100vw; transform: translateX(-50%); pointer-events: none }
+.tape { position: absolute; left: -10vw; width: 120vw; top: 50%; height: 34px; margin-top: -17px; display: flex; align-items: center; overflow: hidden; background: #f2c230; border-block: 2px solid #111; box-shadow: 0 6px 18px rgba(0, 0, 0, .35) }
+.tape span { flex: none; white-space: nowrap; padding-left: 12px; font: 700 13px/1 var(--mono); letter-spacing: .14em; color: #111; display: inline-flex; align-items: center }
+.tape .tsep { font-style: normal; margin: 0 14px }
+.tape .tlogo { height: 18px; width: auto; margin: 0 14px; flex: none }
+.bf-ends { margin-top: 2px; font: 500 12px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3) }
+.tape.t1 { transform: rotate(-4deg) }
+.tape.t2 { transform: rotate(3deg); background: #e9b41f; opacity: .92 }
+.bf-box { position: relative; z-index: 1; display: grid; justify-items: center; gap: 10px; max-width: 520px; padding: 22px 28px 24px; border-radius: 16px; border: 1px solid rgba(242, 194, 48, .55); background: #0d0e12; box-shadow: 0 0 0 6px rgba(13, 14, 18, .85), 0 24px 50px rgba(0, 0, 0, .5); text-align: center }
+.bf-title { font: 600 12px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: #f2c230 }
+.bf-sub { color: var(--fg-2); font-size: 15px; line-height: 1.45 }
+.bf-sub b { color: var(--fg); font-weight: 600 }
+.bf-timer { display: flex; gap: 8px; margin-top: 4px }
+.bf-timer span { display: grid; justify-items: center; gap: 4px; min-width: 64px; padding: 10px 8px 8px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--raised) }
+.bf-timer b { font: 600 26px/1 var(--mono); color: var(--fg); font-variant-numeric: tabular-nums }
+.bf-timer i { font: 400 11px/1 var(--mono); font-style: normal; color: var(--fg-3) }
+@media (prefers-reduced-motion: no-preference) {
+  .tape span { animation: tape 40s linear infinite }
+  .tape.t2 span { animation-direction: reverse }
+  @keyframes tape { to { transform: translateX(-50%) } }
+}
+@media (max-width: 560px) { .bf { min-height: 340px; margin-bottom: 24px } .bf-box { padding: 18px 16px 20px } .bf-timer span { min-width: 56px } .bf-timer b { font-size: 22px } .tape { height: 30px; margin-top: 0 } .tape span { font-size: 11px } .tape.t1 { top: 14px } .tape.t2 { top: auto; bottom: 14px } }
+.field { flex: 1; min-width: 0; height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg); padding: 0 14px; font: 400 15px var(--sans); transition: border-color .15s var(--ease) }
+.field::placeholder { color: var(--fg-3) }
+.field:focus { outline: none; border-color: var(--accent) }
+.scan-dlg { width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); margin: auto; padding: 0; border: 1px solid var(--line-strong); border-radius: 20px; background: #0c0d11; color: var(--fg); box-shadow: 0 40px 100px rgba(0, 0, 0, .7); overflow: hidden }
+.scan-dlg::backdrop { background: rgba(4, 5, 8, .72); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px) }
+.scan-dlg[open] { display: flex; flex-direction: column }
+.dlg-body { overflow-y: auto; padding: 28px; overscroll-behavior: contain }
+.dlg-x { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg-2); display: grid; place-items: center; cursor: pointer; z-index: 2 }
+.dlg-x:hover { color: var(--fg); background: var(--raised) }
+.dlg-eyebrow { font: 500 13px/1 var(--mono); letter-spacing: 0; color: var(--accent-ink) }
+.scan-dlg h2 { margin-top: 12px; font-size: 26px; line-height: 1.15; padding-right: 32px }
+.dlg-lede { margin-top: 10px; color: var(--fg-2); font-size: 14px }
+.dlg-form { margin-top: 24px; display: grid; gap: 16px }
+.dlg-form label.lbl { display: grid; gap: 6px; font-size: 13px; color: var(--fg-2) }
+.dlg-form label.lbl small { color: var(--fg-3) }
+.dlg-form .field { width: 100% }
+.consent { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; font-size: 13px; color: var(--fg-2); cursor: pointer }
+.consent input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--accent) }
+.ts-box { min-height: 65px }
+.dlg-form .btn-primary { width: 100%; height: 48px; font-size: 15px; background: var(--accent); color: #fff }
+.dlg-form .btn-primary:hover { background: #2f7cf0 }
+.dlg-form .btn-primary[disabled] { opacity: .6; cursor: progress }
+.dlg-err { font-size: 13px; color: #ef6b6f; min-height: 18px }
+.dlg-fine { font-size: 12px; color: var(--fg-3) }
+.wl-eyebrow { color: #f2c230 }
+.wl-use { margin: 0; padding: 0; border: 0; display: grid; gap: 8px }
+.wl-use legend { margin-bottom: 6px; padding: 0; font-size: 13px; color: var(--fg-2) }
+.wl-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); cursor: pointer; transition: border-color .15s var(--ease), background-color .15s var(--ease) }
+.wl-opt:hover { border-color: rgba(61, 139, 255, .45) }
+.wl-opt:has(input:checked) { border-color: var(--accent); background: rgba(61, 139, 255, .10) }
+.wl-opt input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex: none }
+.wl-opt span { display: grid; gap: 2px }
+.wl-opt b { font-weight: 500; color: var(--fg); font-size: 15px }
+.wl-opt small { color: var(--fg-3); font-size: 12px }
+.wl-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0 }
+.wl-ok-actions { margin-top: 24px; display: grid; gap: 10px }
+.wl-ok-actions .btn { width: 100%; height: 48px; justify-content: center }
+.wl-ok-actions .btn-primary { background: var(--accent); color: #fff }
+@media (max-width: 460px) { .dlg-body { padding: 22px 18px } .scan-dlg h2 { font-size: 22px } }
+
+/* ajustes da janela dentro do relatório */
+.pd { width: min(1040px, calc(100vw - 24px)) }
+.pd h2, .pd h3, .pd p, .pd ul { margin: 0 }
+.pd .dlg-body { padding: 32px 32px 36px; overflow-x: hidden }
+.pd-head h2 { font-size: 26px; line-height: 1.15; padding-right: 40px; letter-spacing: -.02em }
+.pd-head p { margin-top: 8px; color: var(--fg-2); font-size: 14px }
+.pd .bf { margin: 20px 0 28px; min-height: 210px }
+.pd .bf-tapes { left: -32px; right: -32px; width: auto; transform: none; overflow: hidden }
+.pd .tape { left: -10%; width: 120% }
+.pd .term { margin: 0 0 28px }
+.pd .plans { grid-template-columns: repeat(3, 1fr) }
+.pd .plan { padding: 24px }
+.pd .plan .tag { background: #0c0d11 }
+@media (max-width: 900px) { .pd .plans { grid-template-columns: 1fr } }
+@media (max-width: 560px) { .pd .dlg-body { padding: 24px 16px 28px } .pd .bf-tapes { left: -16px; right: -16px } .pd .bf { min-height: 330px } .pd-head h2 { font-size: 22px } }
+.pd .step-form { max-width: 480px; margin: 0 auto }
+.pd-back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; padding: 0; border: 0; background: none; color: var(--fg-2); font: 500 13px var(--sans); cursor: pointer }
+.pd-back:hover { color: var(--fg) }
+.pd-plan { margin-top: 10px; display: inline-flex; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(242, 194, 48, .45); color: #f2c230; font: 500 12px/1.3 var(--mono) }
+.pd .scan-dlg h2, .pd .step-form h2 { margin-top: 12px; font-size: 24px; line-height: 1.15 }
+.pd .dlg-lede { margin-top: 10px }
+.pd .dlg-form { margin-top: 22px }
+button.btn { font-family: var(--sans) }
 </style>
 </head>
 <body>
@@ -61,6 +192,118 @@ h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spa
   </div>
   <main id="app"><p class="lede">Carregando seu relatório…</p></main>
 </div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol></defs>
+</svg>
+<dialog class="scan-dlg pd" id="plans-dlg" aria-labelledby="pd-title">
+  <button class="dlg-x" type="button" data-close aria-label="Fechar e voltar ao relatório"><svg class="ico" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <div class="dlg-body">
+    <div data-pstep="plans">
+      <div class="pd-head">
+        <h2 id="pd-title">Escolha como quer sumir</h2>
+        <p>Entre na lista de espera de um plano. Seu relatório continua aberto aqui atrás.</p>
+      </div>
+      <div class="bf" id="bf">
+        <div class="bf-tapes" aria-hidden="true">
+          <div class="tape t1"><span>PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18"></span></div>
+          <div class="tape t2"><span>PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18">PRÉ-BLACK FRIDAY<i class="tsep">·</i>PREÇO DE FUNDADOR<img class="tlogo" src="sumico-simbolo-escuro.png" alt="" width="13" height="18"></span></div>
+        </div>
+        <div class="bf-box">
+          <p class="bf-title">Condição Pré-Black Friday</p>
+          <p class="bf-sub">Entre na lista até <b>27/11, às 23:59</b>, e garanta o preço de fundador no lançamento.</p>
+          <p class="bf-ends">Essa oferta se encerra em</p>
+          <div class="bf-timer" role="timer" aria-live="off" aria-label="Tempo restante">
+            <span><b data-u="d">--</b><i>dias</i></span>
+            <span><b data-u="h">--</b><i>horas</i></span>
+            <span><b data-u="m">--</b><i>min</i></span>
+            <span><b data-u="s">--</b><i>seg</i></span>
+          </div>
+        </div>
+      </div>
+      <div class="term">
+        <div class="term-seg" id="term" role="radiogroup" aria-label="Período do plano" data-v="1">
+          <span class="thumb" aria-hidden="true"></span>
+          <button type="button" role="radio" aria-checked="true" data-years="1">1 ano</button>
+          <button type="button" role="radio" aria-checked="false" data-years="2">2 anos<small id="term-chip">−43%</small></button>
+        </div>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <h3>Mensal</h3>
+          <div class="price"><b>R$24,90</b><span>/mês</span></div>
+          <ul>
+            <li><svg class="ico"><use href="#i-check"/></svg>Varredura completa todo mês</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Pedidos de exclusão LGPD ilimitados</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Procuração digital incluída</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Alertas de vazamento de e-mail, telefone e CPF</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Painel com status de cada item</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Cancele quando quiser</li>
+          </ul>
+          <a class="btn btn-ghost" href="/#precos" data-wl="mensal">Entrar na lista</a>
+        </div>
+        <div class="plan featured">
+          <span class="tag swap" id="term-tag">Economize 33%</span>
+          <h3 class="swap" id="term-title">Anual</h3>
+          <div class="price swap" id="term-price"><b>R$199,00</b><span>/ano</span></div>
+          <ul>
+            <li><svg class="ico"><use href="#i-check"/></svg>Tudo do plano mensal</li>
+            <li><svg class="ico"><use href="#i-check"/></svg><span class="swap" id="term-month">Equivale a R$16,58 por mês</span></li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Todas as novas funções, sem aumento de preço</li>
+            <li><svg class="ico"><use href="#i-check"/></svg><span class="swap" id="term-note">Cancele quando quiser</span></li>
+          </ul>
+          <a class="btn btn-primary" href="/#precos" data-wl="anual">Entrar na lista</a>
+        </div>
+        <div class="plan ent">
+          <span class="tag">Para empresas</span>
+          <h3>Enterprise</h3>
+          <div class="price"><b class="consult">Sob consulta</b></div>
+          <p class="lead">Proteja clientes, ex-funcionários e executivos em escala, com contrato e faturamento únicos</p>
+          <ul>
+            <li><svg class="ico"><use href="#i-check"/></svg>Feito sob medida para a sua empresa</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Volume de titulares ilimitado</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Dossiês separados por titular</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Painel e relatórios por titular</li>
+            <li><svg class="ico"><use href="#i-check"/></svg>Atendimento prioritário dedicado</li>
+          </ul>
+          <a class="btn btn-ghost" href="/#precos" data-wl="empresas" data-use="empresa">Falar com a gente</a>
+        </div>
+      </div>
+    </div>
+    <div data-pstep="form" class="step-form" hidden>
+      <button class="pd-back" type="button" data-back>← Voltar aos planos</button>
+      <p class="dlg-eyebrow wl-eyebrow">Condição Pré-Black Friday</p>
+      <h2>Entre na lista de espera</h2>
+      <span class="pd-plan" id="pd-plan"></span>
+      <p class="dlg-lede">Deixe seu nome e e-mail. Avisamos no lançamento e você garante o preço de fundador.</p>
+      <form class="dlg-form" id="wl-form" novalidate>
+        <label class="lbl">Nome
+          <input class="field" name="name" autocomplete="name" placeholder="Maria Souza" maxlength="90" required>
+        </label>
+        <label class="lbl">E-mail
+          <input class="field" name="email" type="email" autocomplete="email" placeholder="seu@email.com" maxlength="254" required>
+        </label>
+        <fieldset class="wl-use">
+          <legend>Vai usar o Sumiço para</legend>
+          <label class="wl-opt"><input type="radio" name="use" value="pessoal"><span><b>Meus dados pessoais</b><small>Nome, CPF, telefone e e-mail</small></span></label>
+          <label class="wl-opt"><input type="radio" name="use" value="empresa"><span><b>Dados da empresa</b><small>Clientes, ex-funcionários e executivos</small></span></label>
+        </fieldset>
+        <input class="wl-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label class="consent"><input type="checkbox" name="consent"><span>Autorizo o Sumiço a guardar meu nome e e-mail para avisar sobre o lançamento.</span></label>
+        <p class="dlg-err" id="wl-err" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Entrar na lista</button>
+      </form>
+    </div>
+    <div data-pstep="ok" class="step-form" hidden>
+      <p class="dlg-eyebrow wl-eyebrow">Pronto</p>
+      <h2>Você está na lista</h2>
+      <p class="dlg-lede" id="wl-ok-text">Guardamos seu contato. Avisamos por e-mail no lançamento, com o preço de fundador garantido.</p>
+      <div class="wl-ok-actions">
+        <button class="btn btn-primary" type="button" data-close>Voltar ao relatório</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <script>
 (function () {
   var app = document.getElementById('app');
@@ -127,9 +370,110 @@ h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spa
       h += '</ul></section>';
     });
 
-    h += '<div class="cta" role="complementary" aria-label="Pedir a remoção"><div class="cta-txt"><h2>Quer que a gente peça a remoção?</h2><p>O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês.</p></div><a class="btn" href="/#precos">Ver planos</a></div>';
+    h += '<div class="cta" role="complementary" aria-label="Pedir a remoção"><div class="cta-txt"><h2>Quer que a gente peça a remoção?</h2><p>O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês.</p></div><button class="btn" type="button" data-plans>Ver planos</button></div>';
     h += '<p class="foot">Este link é só seu e vale por 30 dias a partir da varredura. Para apagar seus dados, responda ao e-mail do relatório pedindo a exclusão.</p>';
     app.innerHTML = h;
+    window.__sumicoName = d.name || '';
+  }
+})();
+</script>
+<script>
+/* Janela de planos: abre por cima do relatório, sem sair da página.
+   Planos e Pré-Black Friday iguais aos da página inicial; o cadastro vai para /api/waitlist. */
+(function () {
+  var dlg = document.getElementById('plans-dlg'); if (!dlg) return;
+  var form = document.getElementById('wl-form'), err = document.getElementById('wl-err');
+  var btn = form.querySelector('button[type=submit]');
+  var RE = /^[^\s@<>"']{1,64}@[^\s@<>"']{1,190}\.[a-z]{2,}$/i;
+  var NAMES = { mensal: 'Plano Mensal', anual: 'Plano Anual', empresas: 'Plano Enterprise' };
+  var plan = 'outro';
+  function step(n) {
+    dlg.querySelectorAll('[data-pstep]').forEach(function (el) { el.hidden = el.getAttribute('data-pstep') !== n; });
+    dlg.querySelector('.dlg-body').scrollTop = 0;
+  }
+  function open() {
+    step('plans'); err.textContent = '';
+    if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+  }
+  function close() { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('[data-plans]')) { e.preventDefault(); open(); }
+  });
+  dlg.addEventListener('click', function (e) {
+    if (e.target === dlg || e.target.closest('[data-close]')) return close();
+    if (e.target.closest('[data-back]')) return step('plans');
+    var a = e.target.closest('[data-wl]');
+    if (a) {
+      e.preventDefault();
+      plan = a.getAttribute('data-wl') || 'outro';
+      var yrs = document.getElementById('term').dataset.v === '2';
+      document.getElementById('pd-plan').textContent = plan === 'anual' && yrs ? 'Plano de 2 anos' : (NAMES[plan] || 'Lista de espera');
+      var use = a.getAttribute('data-use') || 'pessoal';
+      var r = form.querySelector('input[name=use][value="' + use + '"]'); if (r) r.checked = true;
+      if (!form.elements.namedItem('name').value && window.__sumicoName) form.elements.namedItem('name').value = window.__sumicoName;
+      err.textContent = ''; step('form');
+      setTimeout(function () { form.email.focus(); }, 30);
+    }
+  });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = form.elements.namedItem('name').value.trim(), email = form.email.value.trim();
+    var use = (form.querySelector('input[name=use]:checked') || {}).value || '';
+    if (name.length < 2) { err.textContent = 'Escreva seu nome.'; return form.elements.namedItem('name').focus(); }
+    if (!RE.test(email)) { err.textContent = 'Confira o e-mail. Ele precisa ter o formato nome@dominio.com.'; return form.email.focus(); }
+    if (!use) { err.textContent = 'Escolha se vai usar o Sumiço para dados pessoais ou da empresa.'; return; }
+    if (!form.consent.checked) { err.textContent = 'Marque a autorização para guardarmos seu contato.'; return; }
+    err.textContent = ''; btn.disabled = true; btn.textContent = 'Enviando…';
+    fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, email: email, use: use, plan: plan, consent: true, website: form.website.value }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.d.ok) { err.textContent = (res.d && res.d.message) || 'Não conseguimos salvar agora. Tente de novo.'; return; }
+        document.getElementById('wl-ok-text').textContent = 'Guardamos o contato de ' + email + '. Avisamos por e-mail no lançamento' + (use === 'empresa' ? ', e alguém do Sumiço fala com você sobre o plano para empresas.' : ', com o preço de fundador garantido.');
+        step('ok');
+      })
+      .catch(function () { err.textContent = 'Sem conexão. Tente de novo.'; })
+      .then(function () { btn.disabled = false; btn.textContent = 'Entrar na lista'; });
+  });
+
+  // Cronômetro: até 27/11/2026 às 23:59 (Brasília). Depois do prazo, o bloco some.
+  var box = document.getElementById('bf');
+  if (box) {
+    var END = Date.parse('2026-11-27T23:59:59-03:00'), el = {};
+    ['d', 'h', 'm', 's'].forEach(function (k) { el[k] = box.querySelector('[data-u="' + k + '"]'); });
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var tick = function () {
+      var left = END - Date.now();
+      if (left <= 0) { box.remove(); clearInterval(t); return; }
+      var sec = Math.floor(left / 1000);
+      el.d.textContent = Math.floor(sec / 86400); el.h.textContent = pad(Math.floor(sec % 86400 / 3600));
+      el.m.textContent = pad(Math.floor(sec % 3600 / 60)); el.s.textContent = pad(sec % 60);
+    };
+    var t = setInterval(tick, 1000); tick();
+  }
+
+  // 1 ano ou 2 anos (mesmas contas da página inicial)
+  var seg = document.getElementById('term');
+  if (seg) {
+    var YEAR = 199, DISCOUNT = 0.15, MONTHLY = 24.90;
+    var two = Math.round(YEAR * 2 * (1 - DISCOUNT) * 100) / 100;
+    var save1 = Math.round((1 - YEAR / (MONTHLY * 12)) * 100), save2 = Math.round((1 - two / (MONTHLY * 24)) * 100);
+    document.getElementById('term-chip').textContent = '−' + save2 + '%';
+    var brl = function (v) { return 'R$' + v.toFixed(2).replace('.', ','); };
+    var T = {
+      1: { tag: 'Economize ' + save1 + '%', title: 'Anual', price: '<b>' + brl(YEAR) + '</b><span>/ano</span>', month: 'Equivale a ' + brl(Math.round(YEAR / 12 * 100) / 100) + ' por mês', note: 'Cancele quando quiser' },
+      2: { tag: 'Economize ' + save2 + '%', title: '2 anos', price: '<b>' + brl(two) + '</b><span>/2 anos</span>', month: 'Equivale a ' + brl(Math.round(two / 24 * 100) / 100) + ' por mês', note: '15% a menos que 2 anos do plano anual' }
+    };
+    var ids = ['tag', 'title', 'price', 'month', 'note'], cur = 1;
+    var apply = function (y) { ids.forEach(function (k) { var x = document.getElementById('term-' + k); if (k === 'price') x.innerHTML = T[y][k]; else x.textContent = T[y][k]; }); };
+    var set = function (y) {
+      cur = y; seg.dataset.v = String(y);
+      seg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-checked', String(Number(b.dataset.years) === y)); });
+      var els = ids.map(function (k) { return document.getElementById('term-' + k); });
+      els.forEach(function (x) { x.classList.add('out'); });
+      setTimeout(function () { apply(cur); els.forEach(function (x) { x.classList.remove('out'); }); }, 140);
+    };
+    seg.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b && Number(b.dataset.years) !== cur) set(Number(b.dataset.years)); });
+    seg.addEventListener('keydown', function (e) { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); var y = cur === 1 ? 2 : 1; set(y); seg.querySelector('[data-years="' + y + '"]').focus(); } });
   }
 })();
 </script>
