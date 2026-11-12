@@ -109,6 +109,8 @@ p { margin: 0 }
   .hero-video::after { background: linear-gradient(180deg, rgba(8, 9, 13, .8) 0%, rgba(8, 9, 13, .72) 50%, var(--bg) 100%) }
 }
 .hero-grid { position: relative; max-width: 1200px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center }
+/* Computador: o relatório do topo precisa caber inteiro na primeira tela, inclusive em notebooks */
+@media (min-width: 961px) { .hero { padding-block: clamp(24px, 6vh, 96px) clamp(48px, 9vh, 104px) } }
 @media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 56px } .hero { padding-block: 56px 72px } }
 .hero h1 { font-size: clamp(40px, 5.6vw, 84px); line-height: 1.02; letter-spacing: -.045em; font-weight: 600 }
 .hero h1 span { color: #8e9099; white-space: nowrap }
@@ -189,6 +191,19 @@ p { margin: 0 }
 .st-bad { color: #ef6b6f; background: rgba(229, 72, 77, .16) }
 .scan-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--line); background: rgba(64,142,154,.08); font: 11px/1.4 var(--mono); color: var(--fg-3) }
 .scan-foot span { min-width: 0; overflow-wrap: anywhere }
+/* Telas baixas de notebook: relatório mais compacto para caber inteiro na primeira tela */
+@media (min-width: 961px) and (max-height: 880px) {
+  .dos-bar { padding-block: 9px }
+  .dos-body { padding: 14px 20px 12px }
+  .dos-title { font-size: 16px }
+  .ficha { margin-top: 10px; gap: 4px 16px }
+  .dos-sec { margin-top: 12px; padding-bottom: 6px }
+  .meter { margin-top: 8px }
+  .occ { margin-top: 6px }
+  .occ li { padding: 7px 0 }
+  .scan-foot { padding-block: 9px }
+}
+@media (min-width: 961px) and (max-height: 660px) { .scan .occ li:nth-child(4) { display: none } .scan .occ li:nth-child(3) { border-bottom: 0 } }
 .barcode { flex: none; width: 92px; height: 22px; opacity: .5; background: repeating-linear-gradient(90deg, var(--fg-2) 0 1px, transparent 1px 3px, var(--fg-2) 3px 5px, transparent 5px 6px, var(--fg-2) 6px 7px, transparent 7px 10px) }
 @media (prefers-reduced-motion: no-preference) {
   .hero .scan .red { animation: redact .5s cubic-bezier(.23, 1, .32, 1) both; animation-delay: .7s }
