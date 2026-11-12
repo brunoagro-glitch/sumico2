@@ -215,8 +215,8 @@ p { margin: 0 }
 .eyebrow { font-size: clamp(26px, 3vw, 36px); line-height: 1.15; font-weight: 600; letter-spacing: -.03em; color: var(--fg) }
 .wh-hint .h-touch { display: none }
 @media (hover: none) { .wh-hint .h-mouse { display: none } .wh-hint .h-touch { display: inline } }
-.wh-hint { margin-top: 22px; text-align: center; font-size: 16px; line-height: 1.4; font-weight: 500; color: #c9cdd6; letter-spacing: -.005em }
-.wh-hint .ico { display: inline-block; vertical-align: -2px; margin-right: 8px; width: 16px; height: 16px; color: #8fd6df; fill: rgba(143, 214, 223, .18); stroke-width: 1.8 }
+.wh-hint { margin-top: 24px; text-align: center; font-size: 19px; line-height: 1.4; font-weight: 500; color: #c9cdd6; letter-spacing: -.005em }
+.wh-hint .ico { display: inline-block; vertical-align: -2px; margin-right: 9px; width: 19px; height: 19px; color: #8fd6df; fill: rgba(143, 214, 223, .18); stroke-width: 1.8 }
 .source-row { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 32px; color: var(--fg); font-size: 15px; font-weight: 500; letter-spacing: -.01em }
 .wh { position: relative }
 .wh:nth-child(1) { --c: 242, 137, 74 }
@@ -261,6 +261,10 @@ p { margin: 0 }
   .wh:hover .wh-pop { opacity: 0; visibility: hidden }
   .wh.open:hover .wh-pop { opacity: 1; visibility: visible }
 }
+/* sem espaço acima (cabeçalho fixo ou topo da tela): a caixa abre para baixo */
+.wh.down .wh-pop { top: calc(100% + 10px); bottom: auto }
+.wh.down:not(:first-child):not(:last-child) .wh-pop { transform: translate(-50%, -6px) }
+.wh.down:not(:first-child):not(:last-child):hover .wh-pop, .wh.down:not(:first-child):not(:last-child) .wh-btn:focus-visible + .wh-pop, .wh.down:not(:first-child):not(:last-child).open .wh-pop { transform: translate(-50%, 0) }
 @media (prefers-reduced-motion: reduce) { .wh-pop { transition: none } }
 
 /* Ícones */
@@ -802,7 +806,7 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
     <div class="wrap">
       <div class="sec-head left">
         <h2>O Sumiço lado a lado com os outros serviços</h2>
-        <p>Uns só avisam quando seus dados vazam. Outros não atendem o Brasil. O Sumiço encontra, pede a exclusão e confere de novo todo mês.</p>
+        <p>O Sumiço é o único serviço do mercado que, além de encontrar seus dados vazados, pede a remoção e é respaldado por uma Lei Federal que regulamenta os dados pessoais no Brasil.</p>
       </div>
       <div class="cmp-card">
         <p class="cmp-hint" aria-hidden="true">Arraste a tabela para o lado para comparar →</p>
@@ -1504,9 +1508,18 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
   var srcs = [].slice.call(document.querySelectorAll('.wh'));
   function close(except) { srcs.forEach(function (s) { if (s !== except) { s.classList.remove('open'); s.querySelector('.wh-btn').setAttribute('aria-expanded', 'false'); } }); }
   srcs.forEach(function (s) {
-    var b = s.querySelector('.wh-btn');
-    s.addEventListener('mouseenter', function () { s.parentNode.classList.add('used'); });
-    b.addEventListener('click', function (e) { e.stopPropagation(); s.parentNode.classList.add('used'); var on = !s.classList.contains('open'); close(s); s.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on)); });
+    var b = s.querySelector('.wh-btn'), pop = s.querySelector('.wh-pop'), nav = document.querySelector('.nav');
+    // abre para cima quando cabe abaixo do cabeçalho; senão, para baixo
+    function place() {
+      if (matchMedia('(max-width: 640px)').matches) { s.classList.remove('down'); return; }
+      var r = b.getBoundingClientRect(), h = pop.offsetHeight + 16;
+      var top = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0;
+      var above = r.top - top, below = innerHeight - r.bottom;
+      s.classList.toggle('down', above < h && below > above);
+    }
+    s.addEventListener('mouseenter', function () { place(); s.parentNode.classList.add('used'); });
+    b.addEventListener('focus', place);
+    b.addEventListener('click', function (e) { e.stopPropagation(); place(); s.parentNode.classList.add('used'); var on = !s.classList.contains('open'); close(s); s.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on)); });
   });
   document.addEventListener('click', function () { close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });

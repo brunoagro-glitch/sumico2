@@ -38,9 +38,14 @@ h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spa
 .group li .pw { display: block; margin-top: 4px; color: var(--bad); font-size: 13px }
 .note { margin-top: 20px; padding: 14px 16px; border-radius: 12px; font-size: 14px; background: var(--surface); border: 1px solid var(--line); color: var(--fg-2) }
 .note.warn { background: rgba(224,166,75,.12); border-color: transparent; color: #f0d3a3 }
-.cta { margin-top: 40px; padding: 24px; border-radius: 14px; background: var(--raised); border: 1px solid var(--line-strong) }
-.cta h2 { margin: 0; font-size: 19px; font-weight: 600 }
-.cta p { margin: 8px 0 18px; color: var(--fg-2); font-size: 14px }
+/* Oferta de remoção: fica presa na base da tela enquanto a pessoa lê a lista */
+.cta { position: sticky; bottom: max(12px, env(safe-area-inset-bottom, 0px)); z-index: 5; margin-top: 40px; display: flex; align-items: center; gap: 12px 20px; padding: 16px 18px; border-radius: 14px; border: 1px solid rgba(143, 214, 223, .7); background: linear-gradient(120deg, #1f6f7a, #144a55); box-shadow: 0 0 0 4px rgba(79, 179, 192, .14), 0 14px 40px rgba(0, 0, 0, .55) }
+.cta-txt { flex: 1; min-width: 0 }
+.cta h2 { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.25; color: #fff }
+.cta p { margin: 4px 0 0; color: #cfeef2; font-size: 13.5px; line-height: 1.45 }
+.cta .btn { flex: none; background: #fff; color: #0d3a42 }
+.cta .btn:hover { background: #e6f7f9 }
+@media (max-width: 560px) { .cta { flex-wrap: wrap; padding: 14px } .cta p { display: none } .cta .btn { width: 100%; justify-content: center } }
 .btn { display: inline-flex; align-items: center; height: 42px; padding: 0 18px; border-radius: 8px; background: #f2f3f6; color: #0b0d14; font-weight: 600; font-size: 14px; text-decoration: none }
 .foot { margin-top: 28px; font-size: 12px; color: var(--fg-3) }
 .state { margin: 18vh auto 0; max-width: 440px; text-align: center }
@@ -122,7 +127,7 @@ h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); line-height: 1.15; letter-spa
       h += '</ul></section>';
     });
 
-    h += '<div class="cta"><h2>Quer que a gente peça a remoção?</h2><p>O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês. Você está na lista de espera com preço de fundador.</p><a class="btn" href="/#precos">Ver planos</a></div>';
+    h += '<div class="cta" role="complementary" aria-label="Pedir a remoção"><div class="cta-txt"><h2>Quer que a gente peça a remoção?</h2><p>O Sumiço envia os pedidos de exclusão com base na LGPD e repete a varredura todo mês.</p></div><a class="btn" href="/#precos">Ver planos</a></div>';
     h += '<p class="foot">Este link é só seu e vale por 30 dias a partir da varredura. Para apagar seus dados, responda ao e-mail do relatório pedindo a exclusão.</p>';
     app.innerHTML = h;
   }
