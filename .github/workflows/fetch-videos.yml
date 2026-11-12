@@ -22,10 +22,10 @@ jobs:
           mkdir -p media raw
           UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36'
           get() { curl -fL --retry 3 -A "$UA" -o "raw/$1.mp4" "$2"; }
-          get cabos      https://videos.pexels.com/video-files/1085656/1085656-uhd_2560_1440_25fps.mp4
-          get discos     https://videos.pexels.com/video-files/38496193/16348851_2560_1440_25fps.mp4
-          get teclado    https://videos.pexels.com/video-files/9453911/9453911-hd_1920_1080_30fps.mp4
-          for n in cabos discos teclado; do
+          get rede       https://videos.pexels.com/video-files/30607101/13104809_1920_1080_25fps.mp4
+          get servidores https://videos.pexels.com/video-files/7140928/7140928-uhd_2560_1440_24fps.mp4
+          get predio     https://videos.pexels.com/video-files/38081600/16167351_1920_1080_25fps.mp4
+          for n in rede servidores predio; do
             ffprobe -v error -show_entries format=duration:stream=width,height -of compact "raw/$n.mp4"
             ffmpeg -y -v error -ss 1 -t 14 -i "raw/$n.mp4" -an -vf "scale=1280:-2,fps=25" -c:v libx264 -preset veryfast -crf 30 -pix_fmt yuv420p -movflags +faststart "media/bg-$n.mp4"
             ffmpeg -y -v error -ss 2 -i "media/bg-$n.mp4" -frames:v 1 -vf scale=1280:-2 -q:v 5 "media/bg-$n.jpg"
