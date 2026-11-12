@@ -103,14 +103,18 @@ p { margin: 0 }
 .hero-video::after { content: ""; position: absolute; inset: 0; z-index: 1;
   background:
     linear-gradient(90deg, rgba(8, 9, 13, .94) 0%, rgba(8, 9, 13, .8) 38%, rgba(8, 9, 13, .42) 70%, rgba(8, 9, 13, .55) 100%),
-    linear-gradient(180deg, rgba(8, 9, 13, .7) 0%, transparent 22%, transparent 70%, var(--bg) 100%) }
+    linear-gradient(180deg, rgba(8, 9, 13, .7) 0%, transparent 22%, transparent 86%, rgba(8, 9, 13, .55) 100%) }
 @media (max-width: 960px) {
   .hero-video video { opacity: .38 }
   .hero-video::after { background: linear-gradient(180deg, rgba(8, 9, 13, .8) 0%, rgba(8, 9, 13, .72) 50%, var(--bg) 100%) }
 }
 .hero-grid { position: relative; max-width: 1200px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center }
 /* Computador: o relatório do topo precisa caber inteiro na primeira tela, inclusive em notebooks */
-@media (min-width: 961px) { .hero { padding-block: clamp(24px, 6vh, 96px) clamp(48px, 9vh, 104px) } }
+@media (min-width: 961px) {
+  /* o topo ocupa a tela inteira abaixo do cabeçalho, então o vídeo vai até a borda de baixo */
+  .hero { padding-block: clamp(24px, 5vh, 96px); min-height: calc(100vh - var(--head, 97px)); min-height: calc(100svh - var(--head, 97px)); display: flex; flex-direction: column; justify-content: center }
+  .hero > .hero-grid { width: 100% }
+}
 @media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 56px } .hero { padding-block: 56px 72px } }
 .hero h1 { font-size: clamp(40px, 5.6vw, 84px); line-height: 1.02; letter-spacing: -.045em; font-weight: 600 }
 .hero h1 span { color: #8e9099; white-space: nowrap }
@@ -1695,6 +1699,15 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
 })();
 </script>
 <script src="anim.js" defer></script>
+<script>
+/* Altura do cabeçalho (com a faixa vermelha), para o topo preencher o resto da tela */
+(function () {
+  var nav = document.querySelector('.nav'); if (!nav) return;
+  function set() { document.documentElement.style.setProperty('--head', nav.offsetHeight + 'px'); }
+  set(); addEventListener('resize', set); addEventListener('load', set);
+  if ('ResizeObserver' in window) new ResizeObserver(set).observe(nav);
+})();
+</script>
 <script>
 /* Vídeo do topo: quem pediu menos movimento vê só a imagem parada; fora da tela, o vídeo pausa. */
 (function () {
