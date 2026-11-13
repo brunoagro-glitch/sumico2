@@ -21,6 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@700&family=Spectral:wght@400;500&family=Libre+Franklin:wght@500&display=swap">
 <style>
 /* Layout: página escura e centrada no ritmo da página de segurança de referência — hero com escudo, faixa de fontes, grade de cards, faixa cinza, FAQ, caixa de contato, rodapé em colunas */
 :root {
@@ -195,6 +196,37 @@ p { margin: 0 }
 .st-bad { color: #ef6b6f; background: rgba(229, 72, 77, .16) }
 .scan-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--line); background: rgba(64,142,154,.08); font: 11px/1.4 var(--mono); color: var(--fg-3) }
 .scan-foot span { min-width: 0; overflow-wrap: anywhere }
+/* Hallmark · component: report card · genre: editorial · theme: newsprint · deal: manual · states: static · contrast: pass · v2.0.0
+   critique: the report as a newspaper page; the site struck through in brick is the signature */
+.hk { color: var(--k-ink); background-color: var(--k-paper); font-family: var(--k-body); font-variant-numeric: tabular-nums; overflow-wrap: break-word; min-width: 0; animation: card-in .5s cubic-bezier(.2, .7, .2, 1) both }
+@media (prefers-reduced-motion: reduce) { .hk { animation: none } }
+.hk s { text-decoration-thickness: 1.5px; text-decoration-color: var(--k-strike) }
+.hk small { display: block; font-size: .8125rem; color: var(--k-muted) }
+.hk-row, .hk-mast { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap }
+.hk table { width: 100%; border-collapse: collapse }
+
+/* 3 · Newsprint, papel jornal */
+.hk-news { --k-paper: oklch(94% 0.011 92); --k-paper-2: oklch(90.5% 0.015 88); --k-ink: oklch(17% 0.012 60); --k-ink-2: oklch(27% 0.012 58); --k-muted: oklch(46% 0.014 60); --k-rule: oklch(68% 0.016 75); --k-rule-2: oklch(34% 0.012 60);
+  --k-brick: oklch(44% 0.13 32); --k-strike: oklch(44% 0.13 32); --k-display: "Zilla Slab", Georgia, serif; --k-body: "Spectral", Georgia, serif; --k-agate: "Libre Franklin", ui-sans-serif, sans-serif;
+  padding: 24px 28px 24px; box-shadow: 0 30px 70px oklch(0% 0 0 / .55) }
+.hk-mast { padding-bottom: 10px; border-bottom: 3px double var(--k-rule-2) }
+.hk-news .hk-brand { font: 700 20px/1 var(--k-display); letter-spacing: -.02em }
+.hk-news .hk-no { font-size: 13px; font-weight: 500; color: var(--k-muted) }
+.hk-news .hk-head { margin: 16px 0 0; font: 700 32px/1.05 var(--k-display); letter-spacing: -.02em }
+.hk-deck { margin: 10px 0 0; font-size: 16px; line-height: 1.5; color: var(--k-ink-2) }
+.hk-list { margin-top: 16px; border-top: 1px solid var(--k-rule-2) }
+.hk-list th, .hk-list td { padding: 10px 0; border-bottom: 1px solid var(--k-rule); text-align: left; vertical-align: baseline; font-size: 15px }
+.hk-list th { font: 700 16px/1.25 var(--k-display); padding-right: 12px }
+.hk-list td { color: var(--k-muted); font-weight: 500; font-size: 14px }
+.hk-list td.ag { padding-left: 12px; text-align: right; font: 500 14px var(--k-agate); color: var(--k-ink); white-space: nowrap }
+.hk-list tr.gone th { color: var(--k-muted) }
+.hk-list tr.bad td:nth-child(2) { color: var(--k-brick) }
+.hk-list tr:last-child th, .hk-list tr:last-child td { border-bottom: 0; padding-bottom: 0 }
+
+
+@keyframes card-in { from { opacity: 0; transform: translateY(8px) } }
+@media (min-width: 961px) and (max-height: 760px) { .hk-news .hk-head { font-size: 28px } .hk-list th, .hk-list td { padding: 8px 0 } }
+@media (max-width: 560px) { .hk-news { padding: 20px } .hk-news .hk-head { font-size: 26px } .hk-list td:nth-child(2) { display: none } }
 /* Telas baixas de notebook: relatório mais compacto para caber inteiro na primeira tela */
 @media (min-width: 961px) and (max-height: 880px) {
   .dos-bar { padding-block: 9px }
@@ -693,27 +725,18 @@ footer { margin-top: 120px; background: var(--band); border-top: 1px solid var(-
         </form>
       </div>
 
-      <div class="scan" role="img" aria-label="Exemplo de relatório confidencial de exposição: 47 ocorrências, 31 removidas">
-        <div class="dos-bar"><span>Confidencial · restrito ao titular</span><span>Nº SMÇ-2026-1031</span></div>
-        <div class="dos-body">
-          <span class="stamp" aria-hidden="true">SIGILOSO</span>
-          <p class="dos-title">Relatório de exposição de dados<small>Varredura mensal · 01 a 31 out 2026</small></p>
-          <dl class="ficha">
-            <dt>Titular</dt><dd>M<span class="red" style="width:58px"></span> S<span class="red" style="width:72px"></span></dd>
-            <dt>CPF</dt><dd><span class="red" style="width:92px"></span>-42</dd>
-            <dt>Telefone</dt><dd>(49) 9<span class="red dim" style="width:64px"></span></dd>
-            <dt>Acesso</dt><dd>Somente o titular · criptografado</dd>
-          </dl>
-          <p class="dos-sec"><span>Ocorrências</span><span><b>31</b> de 47 removidas</span></p>
-          <div class="meter"><i></i></div>
-          <ul class="occ">
-            <li><span class="src">consultacpf.net</span><span class="exp">CPF, endereço</span><span class="status st-ok">removido</span></li>
-            <li><span class="src">Lista telefônica online</span><span class="exp">Telefone, nome completo</span><span class="status st-ok">removido</span></li>
-            <li><span class="src">Fórum, publicação de 2011</span><span class="exp">Foto, nome</span><span class="status st-sent">pedido LGPD</span></li>
-            <li><span class="src">Vazamento de loja virtual</span><span class="exp">E-mail, senha</span><span class="status st-bad">troque a senha</span></li>
-          </ul>
-        </div>
-        <div class="scan-foot"><span>AES-256 · acesso registrado · pág. 1/3</span><span class="barcode" aria-hidden="true"></span></div>
+      <div class="hk hk-news" id="report-preview" role="img" aria-label="Exemplo de relatório em papel jornal: 31 de 47 endereços já removidos em outubro">
+        <div class="hk-mast"><span class="hk-brand">O Relatório do Sumiço</span><span class="hk-no">Edição 1031, outubro de 2026</span></div>
+        <p class="hk-head">31 de 47 endereços já apagaram seus dados.</p>
+        <p class="hk-deck">Os outros 15 receberam o pedido de exclusão com base no art. 18 da LGPD. Um vazamento pede uma ação sua.</p>
+        <table class="hk-list">
+          <tbody>
+            <tr class="gone"><th><s>consultacpf.net</s></th><td>CPF, endereço</td><td class="ag">14/10</td></tr>
+            <tr class="gone"><th><s>Lista telefônica online</s></th><td>Telefone, nome</td><td class="ag">09/10</td></tr>
+            <tr><th>Fórum, publicação de 2011</th><td>Pedido enviado</td><td class="ag">03/10</td></tr>
+            <tr class="bad"><th>Vazamento de loja virtual</th><td>Troque a senha</td><td class="ag">hoje</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
