@@ -1,4 +1,22 @@
-# Sumiço — landing page e varredura grátis
+# Sumiço 👻 — Seus dados, fora da internet (MVP)
+
+> **Quem dá o limite é você.**
+> Veja onde seu nome aparece na internet e se seu e-mail vazou. Grátis, em minutos, direto no seu e-mail.
+
+Este repositório contém a **primeira etapa do Sumiço**: uma landing page com uma **varredura gratuita**
+que faz uma pré-varredura pública sobre o nome e o e-mail da pessoa e envia o resultado por e-mail.
+A remoção pela LGPD é o produto pago.
+
+**Meta:** faturar R$50 mil de MRR (receita recorrente mensal) até dezembro de 2027.
+
+## Como funciona
+1. A pessoa informa nome completo, e-mail e cidade, e autoriza a busca.
+2. O formulário passa pelo Cloudflare Turnstile e por limites por IP e por e-mail.
+3. O backend busca o nome na web e consulta se o e-mail aparece em vazamentos.
+4. O link do relatório completo **só vai no e-mail de quem pediu** (token aleatório), nunca aparece na tela.
+   Assim só o dono do e-mail vê o resultado, e a varredura não serve para bisbilhotar terceiros.
+
+## Técnico
 
 Site estático (`index.html`) com funções da Vercel em `api/`.
 
@@ -11,6 +29,8 @@ Site estático (`index.html`) com funções da Vercel em `api/`.
   envia o relatório (Resend) e guarda o lead (Upstash Redis).
 - `api/config.js` — chave pública do Turnstile e quais integrações estão ativas.
 - `api/admin.js` — dados do painel.
+- `api/report.js` — devolve o relatório completo pelo token enviado no e-mail (guardado por 30 dias).
+- `api/waitlist.js` — lista de espera dos planos pagos.
 
 ## Variáveis de ambiente (Vercel → Settings → Environment Variables)
 | Variável | Para quê |
@@ -45,3 +65,28 @@ da conta do Resend.
 Para a política de privacidade: Vercel (hospedagem), Upstash (banco), Serper (nome e cidade),
 Resend (e-mail e relatório), Cloudflare Turnstile (verificação anti-robô) e
 XposedOrNot ou Have I Been Pwned (e-mail, para checar vazamentos).
+
+## Princípios de privacidade
+- **Minimização:** a varredura grátis não pede CPF nem telefone. Esses dados só entram depois da contratação, com verificação de identidade.
+- **Entrega restrita:** o relatório só chega ao e-mail informado.
+- **Transparência:** a política de privacidade lista os fornecedores acima, o que cada um recebe e por quanto tempo os dados ficam guardados.
+- **Atribuição:** quando os vazamentos vêm do Have I Been Pwned, o relatório dá o crédito ao serviço.
+- **Direitos do titular:** canal de privacidade para acesso, correção e exclusão (LGPD, art. 18).
+
+## Limitações conhecidas
+- **Homônimos:** nomes comuns geram contagens infladas; o relatório fala em "possíveis menções".
+- **Cobertura:** a busca web não alcança páginas não indexadas nem sites que bloqueiam buscadores.
+- **Remoção** não é feita nesta etapa; a varredura grátis é diagnóstico.
+
+## Roadmap
+- [x] Landing + varredura grátis por e-mail
+- [x] Lista de espera dos planos
+- [ ] Checkout (Pix e cartão) para a limpeza paga
+- [ ] Procuração digital e verificação de identidade
+- [ ] Motor de pedidos de remoção (LGPD, art. 18)
+- [ ] Painel do cliente ("31 de 47 removidos")
+- [ ] Varredura mensal recorrente
+- [ ] Plano Família
+
+## Licença
+Proprietário. Todos os direitos reservados © Sumiço.
